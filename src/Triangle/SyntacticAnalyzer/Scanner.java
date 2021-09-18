@@ -130,6 +130,10 @@ public final class Scanner {
 
     case '.':
       takeIt();
+      if (currentChar == '.') {
+        takeIt();
+        return Token.DOUBLEDOT;
+      }
       return Token.DOT;
 
     case ':':
@@ -147,7 +151,11 @@ public final class Scanner {
     case ',':
       takeIt();
       return Token.COMMA;
-
+    
+    case '|':
+      takeIt();
+      return Token.PIPE;
+      
     case '~':
       takeIt();
       return Token.IS;
