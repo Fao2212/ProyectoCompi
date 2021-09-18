@@ -78,6 +78,7 @@ import Triangle.AbstractSyntaxTrees.UnaryExpression;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
@@ -619,18 +620,28 @@ public class Parser {
         declarationAST = new ConstDeclaration(iAST, eAST, declarationPos);
       }
       break;
-
+    
+    // Se añadió la regla para tener una declaración de una variable inicializada (Austin)
     case Token.VAR:
       {
         acceptIt();
         Identifier iAST = parseIdentifier();
-        accept(Token.COLON);
-        TypeDenoter tAST = parseTypeDenoter();
+        if (currentToken.kind == Token.COLON) {
+          accept(Token.COLON);
+          TypeDenoter tAST = parseTypeDenoter();
+          declarationAST = new VarDeclaration(iAST, tAST, declarationPos);
+        } else if (currentToken.kind == Token.BECOMES){
+          accept(Token.BECOMES);
+          Expression eAST = parseExpression();
+          declarationAST = new VarInitializedDeclaration(iAST, eAST, declarationPos);
+        } 
         finish(declarationPos);
-        declarationAST = new VarDeclaration(iAST, tAST, declarationPos);
+        
       }
       break;
 
+    // Se modificó la regla para tener una Command en vez de un singleCommand en un proc 
+    // y además ahora termina con la palabra clave "end" (Austin)
     case Token.PROC:
       {
         acceptIt();
@@ -639,7 +650,8 @@ public class Parser {
         FormalParameterSequence fpsAST = parseFormalParameterSequence();
         accept(Token.RPAREN);
         accept(Token.IS);
-        Command cAST = parseSingleCommand();
+        Command cAST = parseCommand();  // Paso de single-Command a Command
+        accept(Token.END);
         finish(declarationPos);
         declarationAST = new ProcDeclaration(iAST, fpsAST, cAST, declarationPos);
       }

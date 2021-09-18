@@ -14,7 +14,10 @@
 
 package Triangle.SyntacticAnalyzer;
 
-
+/*
+  CAMBIOS (Austin)
+  Se agrego casos para tomar en cuenta los tipos de token DOUBLEDOT y PIPE
+*/
 public final class Scanner {
 
   private SourceFile sourceFile;
