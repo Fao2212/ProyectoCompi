@@ -4,9 +4,9 @@ import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class RepeatCommand extends Command{
 
-    public RepeatCommand(Command C,SourcePosition thePosition) {
+    public RepeatCommand(Loop lAST, SourcePosition thePosition) {
         super(thePosition);
-        this.C = C;
+        this.L= lAST;
     }
 
     @Override
@@ -14,5 +14,5 @@ public class RepeatCommand extends Command{
         return v.visitRepeatCommand(this, o);
     }
     
-    Command C;
+    Loop L;
 }
