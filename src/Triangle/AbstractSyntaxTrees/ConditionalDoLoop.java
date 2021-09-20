@@ -2,10 +2,9 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public class ConditionalLoop extends Command{
+public class ConditionalDoLoop extends Loop{
 
-
-    public ConditionalLoop(Command C,Expression eAST,SourcePosition thePosition) {
+    public ConditionalDoLoop(Expression eAST, Command C,SourcePosition thePosition) {
         super(thePosition);
         this.eAST = eAST;
         this.C = C;
@@ -18,8 +17,6 @@ public class ConditionalLoop extends Command{
     }
 
     public Expression eAST;
-    
-    //Aca se le agrega un command porque puede tener un doCommand.
     public Command C;
     
 }

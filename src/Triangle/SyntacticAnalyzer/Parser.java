@@ -27,19 +27,22 @@ import Triangle.AbstractSyntaxTrees.CallExpression;
 import Triangle.AbstractSyntaxTrees.CharacterExpression;
 import Triangle.AbstractSyntaxTrees.CharacterLiteral;
 import Triangle.AbstractSyntaxTrees.Command;
-import Triangle.AbstractSyntaxTrees.ConditionalLoop;
+import Triangle.AbstractSyntaxTrees.ConditionalDoLoop;
+import Triangle.AbstractSyntaxTrees.Loop;
+import Triangle.AbstractSyntaxTrees.Range;
 import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
 import Triangle.AbstractSyntaxTrees.Declaration;
-import Triangle.AbstractSyntaxTrees.DoCommand;
 import Triangle.AbstractSyntaxTrees.DotVname;
 import Triangle.AbstractSyntaxTrees.EmptyActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.EmptyCommand;
+import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.Expression;
 import Triangle.AbstractSyntaxTrees.FieldTypeDenoter;
-import Triangle.AbstractSyntaxTrees.ForCommand;
+import Triangle.AbstractSyntaxTrees.ForInLoop;
+import Triangle.AbstractSyntaxTrees.ForRangeLoop;
 import Triangle.AbstractSyntaxTrees.FormalParameter;
 import Triangle.AbstractSyntaxTrees.FormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
@@ -48,7 +51,6 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
-import Triangle.AbstractSyntaxTrees.InExpression;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
@@ -63,7 +65,6 @@ import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
-import Triangle.AbstractSyntaxTrees.RangeExp;
 import Triangle.AbstractSyntaxTrees.RecordAggregate;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
@@ -360,8 +361,8 @@ public class Parser {
     return commandAST;
   }
 
-  Command parseRepeat() throws SyntaxError{
-    Command commandAST = null;
+  Loop parseLoop() throws SyntaxError{
+    Loop loopAST;
     //Me queda pendiente que todos los Single COmmand pasen a ser command.
     //Puede que necesite una estructura intermedia que me ayude a parsear los que solo son parte de repeat.
     SourcePosition fieldPos = new SourcePosition();
@@ -370,61 +371,55 @@ public class Parser {
     //accept(Token.REPEAT);//Este va en el single Command
     switch(currentToken.kind){
 
-      case Token.WHILE:{
+      case Token.WHILE || Token.UNTIL:{
         acceptIt();
         Expression eAST = parseExpression();
-        Command C = parseRepeat();//Se enciclara? Tendra que usar este o el de parseCommand? Este segundo es para que identifique el DoCommand
+        accept(Token.DO);
+        Command C = parseCommand();
         accept(Token.END);
         finish(fieldPos);
-        commandAST = new ConditionalLoop(C,eAST,fieldPos);
-        break;
-      }
-      case Token.UNTIL:{
-        acceptIt();
-        Expression eAST = parseExpression();
-        Command C = parseRepeat();//Se si pongo el command entonces creo que tendria que haber un repeat Este segundo es para que identifique el DoCommand
-        accept(Token.END);
-        finish(fieldPos);
-        commandAST = new ConditionalLoop(C,eAST,fieldPos);
-        break;
-      }
-      case Token.DO:{
-        acceptIt();
-        Command C1 = parseCommand();
-        Command C2 = parseRepeat();//Se enciclara? Este segundo es para que identifique el Conditional Loop
-        accept(Token.END);
-        finish(fieldPos);
-        commandAST = new DoCommand(C1,C2,fieldPos);
+        loopAST = new ConditionalDoLoop(eAST,C,fieldPos);
         break;
       }
       case Token.FOR:{
         acceptIt();
         Identifier I = parseIdentifier();
-        Command C1 = parseRepeat();
-        Command C2 = parseRepeat();//Creo que este parse repeat podria ser el que evite el subir hasta ParseCommand
-        accept(Token.END);
-        finish(fieldPos);
-        commandAST = new ForCommand(I, C1, C2, fieldPos);
-        break;
-      }
-      case Token.COLONEQUAL:{
-        acceptIt();
-        accept(Token.RANGE);
-        Expression e1AST = parseExpression();
-        accept(Token.DOUBLEDOT);
-        Expression e2AST = parseExpression();
-        Command C =  parseRepeat(); //Este puede o no existir.
-        accept(Token.END);
-        finish(fieldPos);
-        commandAST = new RangeExp(e1AST,e2AST,C,fieldPos);
-        break;
-      }
-      case Token.IN:{
-        acceptIt();
-        Expression eAST = parseExpression();
-        accept(Token.END);
-        finish(fieldPos);
-        commandAST = new InExpression(eAST, fieldPos);
+        //Posible Adicion de un Expression
+        if(currentToken.kind == Token.BECOMES){
+          acceptIt();
+          Expression eAST1 = parseExpression();//Se tendria que pasar debajo del Identifier
+          accept(Token.DOUBLEDOT);
+          Expression eAST2 = parseExpression();
+          if(currentToken.kind == Token.WHILE|currentToken.kind == Token.UNTIL){
+            acceptIt();
+            Expression eAST3 = parseExpression();
+            Range rAST = parseRange(eAST1, eAST2, eAST3);
+            accept(Token.DO);
+            Command C = parseCommand();
+            accept(Token.END);
+            finish(fieldPos);
+            loopAST = new ForRangeLoop(I,rAST,C,fieldPos);
+          }
+          else if(currentToken.kind == Token.DO){
+            acceptIt();
+            Command C = parseCommand();
+            
+            Expression eAST3 = parseEmptyExpression();
+            Range rAST = parseRange(eAST1, eAST2, eAST3);
+            accept(Token.END);
+            finish(fieldPos);
+            loopAST = new ForRangeLoop(I, rAST, C, fieldPos);
+          }
+        }
+        else if(currentToken.kind == Token.IN){
+          acceptIt();
+          Expression eAST = parseExpression();//Se tendria que pasar debajo del Identifier
+          accept(Token.DO);
+          Command cAST = parseCommand();
+          accept(Token.END);
+          finish(fieldPos);
+          loopAST = new ForInLoop(I,eAST,cAST,fieldPos);
+        }        
         break;
       }
       default:{
@@ -433,7 +428,7 @@ public class Parser {
       break;
       }
     }
-    return commandAST;
+    return loopAST;
 
   }
 
@@ -626,6 +621,22 @@ public class Parser {
     return aggregateAST;
   }
 
+  Range parseRange(Expression eAST1,Expression eAST2, Expression eAST3){
+    SourcePosition thisPosition = new SourcePosition();
+    start(thisPosition);
+    finish(thisPosition);
+    return new Range(eAST1, eAST2, eAST3, thisPosition);
+  }
+
+  Expression parseEmptyExpression () throws SyntaxError {
+
+    SourcePosition expressionPos = new SourcePosition();
+    start(expressionPos);
+    finish(expressionPos);
+    Expression emptyExpression = new EmptyExpression(expressionPos);
+    return emptyExpression;
+    
+  }
 ///////////////////////////////////////////////////////////////////////////////
 //
 // VALUE-OR-VARIABLE NAMES
