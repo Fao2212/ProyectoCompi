@@ -27,16 +27,19 @@ import Triangle.AbstractSyntaxTrees.CallExpression;
 import Triangle.AbstractSyntaxTrees.CharacterExpression;
 import Triangle.AbstractSyntaxTrees.CharacterLiteral;
 import Triangle.AbstractSyntaxTrees.Command;
+import Triangle.AbstractSyntaxTrees.ConditionalLoop;
 import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
 import Triangle.AbstractSyntaxTrees.Declaration;
+import Triangle.AbstractSyntaxTrees.DoCommand;
 import Triangle.AbstractSyntaxTrees.DotVname;
 import Triangle.AbstractSyntaxTrees.EmptyActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.EmptyCommand;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.Expression;
 import Triangle.AbstractSyntaxTrees.FieldTypeDenoter;
+import Triangle.AbstractSyntaxTrees.ForCommand;
 import Triangle.AbstractSyntaxTrees.FormalParameter;
 import Triangle.AbstractSyntaxTrees.FormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
@@ -45,6 +48,7 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
+import Triangle.AbstractSyntaxTrees.InExpression;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
@@ -59,9 +63,11 @@ import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
+import Triangle.AbstractSyntaxTrees.RangeExp;
 import Triangle.AbstractSyntaxTrees.RecordAggregate;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
+import Triangle.AbstractSyntaxTrees.RepeatCommand;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -352,6 +358,83 @@ public class Parser {
     }
 
     return commandAST;
+  }
+
+  Command parseRepeat() throws SyntaxError{
+    Command commandAST = null;
+    //Me queda pendiente que todos los Single COmmand pasen a ser command.
+    //Puede que necesite una estructura intermedia que me ayude a parsear los que solo son parte de repeat.
+    SourcePosition fieldPos = new SourcePosition();
+
+    start(fieldPos);
+    //accept(Token.REPEAT);//Este va en el single Command
+    switch(currentToken.kind){
+
+      case Token.WHILE:{
+        acceptIt();
+        Expression eAST = parseExpression();
+        Command C = parseRepeat();//Se enciclara? Tendra que usar este o el de parseCommand? Este segundo es para que identifique el DoCommand
+        accept(Token.END);
+        finish(fieldPos);
+        commandAST = new ConditionalLoop(C,eAST,fieldPos);
+        break;
+      }
+      case Token.UNTIL:{
+        acceptIt();
+        Expression eAST = parseExpression();
+        Command C = parseRepeat();//Se si pongo el command entonces creo que tendria que haber un repeat Este segundo es para que identifique el DoCommand
+        accept(Token.END);
+        finish(fieldPos);
+        commandAST = new ConditionalLoop(C,eAST,fieldPos);
+        break;
+      }
+      case Token.DO:{
+        acceptIt();
+        Command C1 = parseCommand();
+        Command C2 = parseRepeat();//Se enciclara? Este segundo es para que identifique el Conditional Loop
+        accept(Token.END);
+        finish(fieldPos);
+        commandAST = new DoCommand(C1,C2,fieldPos);
+        break;
+      }
+      case Token.FOR:{
+        acceptIt();
+        Identifier I = parseIdentifier();
+        Command C1 = parseRepeat();
+        Command C2 = parseRepeat();//Creo que este parse repeat podria ser el que evite el subir hasta ParseCommand
+        accept(Token.END);
+        finish(fieldPos);
+        commandAST = new ForCommand(I, C1, C2, fieldPos);
+        break;
+      }
+      case Token.COLONEQUAL:{
+        acceptIt();
+        accept(Token.RANGE);
+        Expression e1AST = parseExpression();
+        accept(Token.DOUBLEDOT);
+        Expression e2AST = parseExpression();
+        Command C =  parseRepeat(); //Este puede o no existir.
+        accept(Token.END);
+        finish(fieldPos);
+        commandAST = new RangeExp(e1AST,e2AST,C,fieldPos);
+        break;
+      }
+      case Token.IN:{
+        acceptIt();
+        Expression eAST = parseExpression();
+        accept(Token.END);
+        finish(fieldPos);
+        commandAST = new InExpression(eAST, fieldPos);
+        break;
+      }
+      default:{
+      syntacticError("\"%\" cannot start a repeat",
+        currentToken.spelling);
+      break;
+      }
+    }
+    return commandAST;
+
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -958,4 +1041,5 @@ public class Parser {
     }
     return fieldAST;
   }
+
 }
