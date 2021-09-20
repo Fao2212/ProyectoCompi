@@ -65,6 +65,7 @@ import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
@@ -76,7 +77,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  *
  * Generates DefaultMutableTreeNodes, used to draw a JTree.
  *
- * @author Luis Leopoldo Pérez <luiperpe@ns.isi.ulatina.ac.cr>
+ * @author Luis Leopoldo Pï¿½rez <luiperpe@ns.isi.ulatina.ac.cr>
  */
 public class TreeVisitor implements Visitor {
       
@@ -196,6 +197,10 @@ public class TreeVisitor implements Visitor {
     
     public Object visitVarDeclaration(VarDeclaration ast, Object obj) {
         return(createBinary("Variable Declaration", ast.I, ast.T));
+    }
+
+    public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object obj) {
+        return(createBinary("Initialized Variable Declaration", ast.I, ast.E));
     }
     // </editor-fold>
     
