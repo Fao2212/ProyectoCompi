@@ -12,8 +12,7 @@ public class DoCommand extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        // TODO Auto-generated method stub
-        return null;
+        return v.visitDoCommand(this, o);
     }
     
     public Command C1,C2;

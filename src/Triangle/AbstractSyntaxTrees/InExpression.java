@@ -11,8 +11,7 @@ public class InExpression extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        // TODO Auto-generated method stub
-        return null;
+        return v.visitInExpression(this, o);
     }
 
     Expression eAST;

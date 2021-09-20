@@ -11,8 +11,7 @@ public class ForCommand extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        
-        return null;
+        return v.visitForCommand(this, o);
     }
 
     Identifier I;

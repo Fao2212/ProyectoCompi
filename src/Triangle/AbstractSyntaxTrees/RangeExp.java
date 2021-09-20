@@ -13,8 +13,7 @@ public class RangeExp extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        // TODO Auto-generated method stub
-        return null;
+        return v.visitRangeExp(this, o);
     }
 
     Expression e1AST,e2AST;
