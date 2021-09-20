@@ -82,6 +82,7 @@ import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
@@ -937,5 +938,12 @@ public final class Checker implements Visitor {
     StdEnvironment.equalDecl = declareStdBinaryOp("=", StdEnvironment.anyType, StdEnvironment.anyType, StdEnvironment.booleanType);
     StdEnvironment.unequalDecl = declareStdBinaryOp("\\=", StdEnvironment.anyType, StdEnvironment.anyType, StdEnvironment.booleanType);
 
+  }
+
+// POR IMPLEMENTAR EN FUTUROS PROYECTOS
+  @Override
+  public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
   }
 }

@@ -85,6 +85,7 @@ import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
@@ -995,4 +996,11 @@ public final class Encoder implements Visitor {
       }
     }
   }
+
+  // POR IMPLEMENTAR EN FUTUROS PROYECTOS
+@Override
+public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }
