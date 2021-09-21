@@ -30,6 +30,7 @@ import Triangle.AbstractSyntaxTrees.Command;
 import Triangle.AbstractSyntaxTrees.ConditionalDoLoop;
 import Triangle.AbstractSyntaxTrees.Loop;
 import Triangle.AbstractSyntaxTrees.Range;
+import Triangle.AbstractSyntaxTrees.RangeVarDecl;
 import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
@@ -41,8 +42,6 @@ import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.Expression;
 import Triangle.AbstractSyntaxTrees.FieldTypeDenoter;
-import Triangle.AbstractSyntaxTrees.ForInLoop;
-import Triangle.AbstractSyntaxTrees.ForRangeLoop;
 import Triangle.AbstractSyntaxTrees.FormalParameter;
 import Triangle.AbstractSyntaxTrees.FormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
@@ -51,6 +50,7 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
+import Triangle.AbstractSyntaxTrees.InVarDecl;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
@@ -69,6 +69,8 @@ import Triangle.AbstractSyntaxTrees.RecordAggregate;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RepeatCommand;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -350,86 +352,55 @@ public class Parser {
       finish(commandPos);
       commandAST = new EmptyCommand(commandPos);
       break;
-
-    default:
-      syntacticError("\"%\" cannot start a command",
-        currentToken.spelling);
-      break;
-
-    }
-
-    return commandAST;
-  }
-
-  Loop parseLoop() throws SyntaxError{
-    Loop loopAST;
-    //Me queda pendiente que todos los Single COmmand pasen a ser command.
-    //Puede que necesite una estructura intermedia que me ayude a parsear los que solo son parte de repeat.
-    SourcePosition fieldPos = new SourcePosition();
-
-    start(fieldPos);
-    //accept(Token.REPEAT);//Este va en el single Command
-    switch(currentToken.kind){
-
-      case Token.WHILE || Token.UNTIL:{
+    
+    case Token.REPEAT:
+      {
         acceptIt();
-        Expression eAST = parseExpression();
-        accept(Token.DO);
-        Command C = parseCommand();
-        accept(Token.END);
-        finish(fieldPos);
-        loopAST = new ConditionalDoLoop(eAST,C,fieldPos);
-        break;
-      }
-      case Token.FOR:{
-        acceptIt();
-        Identifier I = parseIdentifier();
-        //Posible Adicion de un Expression
-        if(currentToken.kind == Token.BECOMES){
+        accept(Token.FOR);
+        Identifier iAST = parseIdentifier();
+        if (currentToken.kind == Token.BECOMES) {
           acceptIt();
-          Expression eAST1 = parseExpression();//Se tendria que pasar debajo del Identifier
+          accept(Token.RANGE);
+          Expression eAST1 = parseExpression();
+          RangeVarDecl rvdAST = new RangeVarDecl(iAST, eAST1, previousTokenPosition);
           accept(Token.DOUBLEDOT);
           Expression eAST2 = parseExpression();
-          if(currentToken.kind == Token.WHILE|currentToken.kind == Token.UNTIL){
+          if (currentToken.kind == Token.WHILE) {
             acceptIt();
             Expression eAST3 = parseExpression();
-            Range rAST = parseRange(eAST1, eAST2, eAST3);
             accept(Token.DO);
-            Command C = parseCommand();
+            Command cAST = parseCommand();
             accept(Token.END);
-            finish(fieldPos);
-            loopAST = new ForRangeLoop(I,rAST,C,fieldPos);
-          }
-          else if(currentToken.kind == Token.DO){
+            finish(commandPos);
+            RepeatForRangeWhile rfrwAST = new RepeatForRangeWhile(rvdAST, eAST2, cAST, eAST3, commandPos);
+          } else if (currentToken.kind == Token.UNTIL) {
             acceptIt();
-            Command C = parseCommand();
-            
-            Expression eAST3 = parseEmptyExpression();
-            Range rAST = parseRange(eAST1, eAST2, eAST3);
+            Expression eAST3 = parseExpression();
+            accept(Token.DO);
+            Command cAST = parseCommand();
             accept(Token.END);
-            finish(fieldPos);
-            loopAST = new ForRangeLoop(I, rAST, C, fieldPos);
+            finish(commandPos);
+            RepeatForRangeUntil rfruAST = new RepeatForRangeUntil(rvdAST, eAST2, cAST, eAST3, commandPos);
+          } else {
+            syntacticError("\"%\" cannot start a Repeat-For-Range command", currentToken.spelling);
           }
-        }
-        else if(currentToken.kind == Token.IN){
+        } else if (currentToken.kind == Token.IN) {
           acceptIt();
-          Expression eAST = parseExpression();//Se tendria que pasar debajo del Identifier
+          Expression eAST3 = parseExpression();
+          InVarDecl ivdAST = new InVarDecl(iAST, eAST3, commandPos);
           accept(Token.DO);
           Command cAST = parseCommand();
           accept(Token.END);
-          finish(fieldPos);
-          loopAST = new ForInLoop(I,eAST,cAST,fieldPos);
-        }        
-        break;
+        } else {
+          syntacticError("\"%\" cannot start a Repeat-In command", currentToken.spelling);
+        }
       }
-      default:{
-      syntacticError("\"%\" cannot start a repeat",
+    default:
+      syntacticError("\"%\" cannot start a Repeat command",
         currentToken.spelling);
       break;
-      }
     }
-    return loopAST;
-
+    return commandAST;
   }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -619,13 +590,6 @@ public class Parser {
       aggregateAST = new SingleArrayAggregate(eAST, aggregatePos);
     }
     return aggregateAST;
-  }
-
-  Range parseRange(Expression eAST1,Expression eAST2, Expression eAST3){
-    SourcePosition thisPosition = new SourcePosition();
-    start(thisPosition);
-    finish(thisPosition);
-    return new Range(eAST1, eAST2, eAST3, thisPosition);
   }
 
   Expression parseEmptyExpression () throws SyntaxError {
