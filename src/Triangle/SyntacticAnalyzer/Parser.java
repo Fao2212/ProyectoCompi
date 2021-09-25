@@ -32,6 +32,8 @@ import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
 import Triangle.AbstractSyntaxTrees.Declaration;
+import Triangle.AbstractSyntaxTrees.DoUntilCommand;
+import Triangle.AbstractSyntaxTrees.DoWhileCommand;
 import Triangle.AbstractSyntaxTrees.DotVname;
 import Triangle.AbstractSyntaxTrees.EmptyActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.EmptyCommand;
@@ -408,7 +410,7 @@ public class Parser {
                 Expression eAST = parseExpression();
                 accept(Token.END);
                 finish(commandPos);
-                commandAST = new WhileCommand(eAST, cAST, commandPos);
+                commandAST = new DoWhileCommand(eAST, cAST, commandPos);
                 break;
               }
               case Token.UNTIL: {
@@ -416,7 +418,7 @@ public class Parser {
                 Expression eAST = parseExpression();
                 accept(Token.END);
                 finish(commandPos);
-                commandAST = new UntilCommand(eAST, cAST, commandPos);
+                commandAST = new DoUntilCommand(eAST, cAST, commandPos);
                 break;
               }
               default:{

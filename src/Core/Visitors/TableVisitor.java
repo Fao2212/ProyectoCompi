@@ -62,6 +62,7 @@ import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
 import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
+import Triangle.AbstractSyntaxTrees.UntilCommand;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
@@ -133,13 +134,32 @@ public class TableVisitor implements Visitor {
       
       return(null);
   }
-  
-  public Object visitWhileCommand(WhileCommand ast, Object o) { 
+  /* Se modifica para visitar el while command ahora precedido
+     por "repeat" (Austin) */
+  public Object visitRepeatWhileCommand(WhileCommand ast, Object o) { 
       ast.E.visit(this, null);
       ast.C.visit(this, null);
       
       return(null);
   }
+
+  /* Se agrega para visitar el repeat until command (Austin) */
+  public Object visitRepeatUntilCommand(UntilCommand ast, Object o) { 
+    ast.C.visit(this, null);
+    ast.E.visit(this, null);
+    
+    return(null);
+  }
+
+  /* Se agrega para visitar el repeat until command (Austin) */
+  public Object visitRepeatCommand(UntilCommand ast, Object o) { 
+    ast.C.visit(this, null);
+    ast.E.visit(this, null);
+    
+    return(null);
+  }
+
+
   // </editor-fold>
 
   // <editor-fold defaultstate="collapsed" desc=" Expressions ">
@@ -309,6 +329,7 @@ public class TableVisitor implements Visitor {
       return(null);
   }
 
+  /* Para reconocer una declaración de variable inicializada (Austin) */
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {      
     try {
     addIdentifier(ast.I.spelling, 

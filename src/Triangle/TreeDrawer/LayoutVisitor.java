@@ -118,7 +118,7 @@ public class LayoutVisitor implements Visitor {
     return layoutBinary("Seq.Com.", ast.C1, ast.C2);
   }
 
-  public Object visitWhileCommand(WhileCommand ast, Object obj) {
+  public Object visitRepeatWhileCommand(WhileCommand ast, Object obj) {
     return layoutBinary("WhileCom.", ast.E, ast.C);
   }
 

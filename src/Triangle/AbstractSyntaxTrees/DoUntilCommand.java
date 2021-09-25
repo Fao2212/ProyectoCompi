@@ -18,6 +18,6 @@ public class DoUntilCommand extends Command{
         return null;
     }
     
-    Expression E;
-    Command C;
+    public Expression E;
+    public Command C;
 }

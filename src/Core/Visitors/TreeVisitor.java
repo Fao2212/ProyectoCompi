@@ -20,6 +20,8 @@ import Triangle.AbstractSyntaxTrees.CharacterLiteral;
 import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
+import Triangle.AbstractSyntaxTrees.DoUntilCommand;
+import Triangle.AbstractSyntaxTrees.DoWhileCommand;
 import Triangle.AbstractSyntaxTrees.DotVname;
 import Triangle.AbstractSyntaxTrees.EmptyActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.EmptyCommand;
@@ -49,6 +51,10 @@ import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
+import Triangle.AbstractSyntaxTrees.RepeatForRange;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
+import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -62,6 +68,7 @@ import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
 import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
+import Triangle.AbstractSyntaxTrees.UntilCommand;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
@@ -112,9 +119,37 @@ public class TreeVisitor implements Visitor {
     public Object visitSequentialCommand(SequentialCommand ast, Object obj) {
         return(createBinary("Sequential Command", ast.C1, ast.C2));
     }
-    
-    public Object visitWhileCommand(WhileCommand ast, Object obj) {
-        return(createBinary("While Command", ast.E, ast.C));
+    /* Se modifica el nombre para reflejar que forma parte de los comandos repeat (Austin)*/
+    public Object visitRepeatWhileCommand(WhileCommand ast, Object obj) {
+        return(createBinary("Repeat While Command", ast.E, ast.C));
+    }
+    /* Se agrega para recorrer un comando repeat until (Austin) */
+    public Object visitRepeatUntilCommand(UntilCommand ast, Object obj) {
+        return(createBinary("Repeat Until Command", ast.C, ast.E));
+    }
+    /* Se agrega para reconocer un comando repeat do while (Austin) */
+    public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object obj) {
+        return(createBinary("Repeat Do-While Command", ast.C, ast.E));
+    }
+    /* Se agrega para reconocer un comando repeat do until (Austin) */
+    public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object obj) {
+        return(createBinary("Repeat Do-Until Command", ast.C, ast.E));
+    }
+    /* Se agrega para reconocer un comando repeat for range (Austin) */
+    public Object visitRepeatForRange(RepeatForRange ast, Object obj) {
+        return(createTernary("Repeat For Range Command", ast.RVD, ast.C, ast.E));
+    }
+    /* Se agrega para reconocer un comando repeat for range while (Austin) */
+    public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object obj) {
+        return(createQuaternary("Repeat For Range While Command", ast.RVD, ast.E1, ast.C, ast.E2));
+    }
+    /* Se agrega para reconocer un comando repeat for range until (Austin) */
+    public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object obj) {
+        return(createQuaternary("Repeat For Range Until Command", ast.RVD, ast.E1, ast.C, ast.E2));
+    }
+    /* Se agrega para reconocer un comando repeat for range while (Austin) */
+    public Object visitRepeatIn(RepeatIn ast, Object obj) {
+        return(createBinary("Repeat For In Command", ast.IVD, ast.C));
     }
     // </editor-fold>
     
@@ -179,7 +214,12 @@ public class TreeVisitor implements Visitor {
         return(createQuaternary("Function Declaration", ast.I, ast.FPS, ast.T, ast.E));
     }
     
+    /* No se cambia porque singleCommand extiende Command y no hay nuevas estructuras sintácticas */
     public Object visitProcDeclaration(ProcDeclaration ast, Object obj) {
+        return(createTernary("Procedure Declaration", ast.I, ast.FPS, ast.C));        
+    }
+
+    public Object visit(ProcDeclaration ast, Object obj) {
         return(createTernary("Procedure Declaration", ast.I, ast.FPS, ast.C));        
     }
     
@@ -199,6 +239,7 @@ public class TreeVisitor implements Visitor {
         return(createBinary("Variable Declaration", ast.I, ast.T));
     }
 
+    /*Se agrega para visitar la nueva declaración de variable inicializada (Austin) */
     public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object obj) {
         return(createBinary("Initialized Variable Declaration", ast.I, ast.E));
     }

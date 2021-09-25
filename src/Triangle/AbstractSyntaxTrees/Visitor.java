@@ -23,7 +23,15 @@ public interface Visitor {
   public abstract Object visitIfCommand(IfCommand ast, Object o);
   public abstract Object visitLetCommand(LetCommand ast, Object o);
   public abstract Object visitSequentialCommand(SequentialCommand ast, Object o);
-  public abstract Object visitWhileCommand(WhileCommand ast, Object o);
+  /* Se agregan nuevos métodos visitantes para los nuevos comandos (Austin) */
+  public abstract Object visitRepeatWhileCommand(WhileCommand ast, Object o);
+  public abstract Object visitRepeatUntilCommand(UntilCommand ast, Object o);
+  public abstract Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o);
+  public abstract Object visitRepeatDoWhileCommand(DoUntilCommand ast, Object o);
+  public abstract Object visitRepeatForRange(RepeatForRange ast, Object o);
+  public abstract Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o);
+  public abstract Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o);
+  public abstract Object visitRepeatIn(RepeatIn ast, Object o);
 
 
   // Expressions
