@@ -20,6 +20,8 @@ import Triangle.AbstractSyntaxTrees.CharacterLiteral;
 import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
+import Triangle.AbstractSyntaxTrees.DoUntilCommand;
+import Triangle.AbstractSyntaxTrees.DoWhileCommand;
 import Triangle.AbstractSyntaxTrees.DotVname;
 import Triangle.AbstractSyntaxTrees.EmptyActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.EmptyCommand;
@@ -37,6 +39,7 @@ import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
 import Triangle.AbstractSyntaxTrees.LetExpression;
+import Triangle.AbstractSyntaxTrees.LocalDeclaration;
 import Triangle.AbstractSyntaxTrees.MultipleActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.MultipleArrayAggregate;
 import Triangle.AbstractSyntaxTrees.MultipleFieldTypeDenoter;
@@ -49,6 +52,11 @@ import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
+import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
+import Triangle.AbstractSyntaxTrees.RepeatForRange;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
+import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -145,20 +153,64 @@ public class TableVisitor implements Visitor {
 
   /* Se agrega para visitar el repeat until command (Austin) */
   public Object visitRepeatUntilCommand(UntilCommand ast, Object o) { 
+    ast.E.visit(this, null);
+    ast.C.visit(this, null);
+    
+    return(null);
+  }
+
+  /* Se agrega para visitar el repeat do while command (Austin) */
+  public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) { 
     ast.C.visit(this, null);
     ast.E.visit(this, null);
     
     return(null);
   }
 
-  /* Se agrega para visitar el repeat until command (Austin) */
-  public Object visitRepeatCommand(UntilCommand ast, Object o) { 
+  /* Se agrega para visitar el repeat do until command (Austin) */
+  public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) { 
     ast.C.visit(this, null);
     ast.E.visit(this, null);
     
     return(null);
   }
 
+  /* Se agrega para visitar el repeat for range command (Austin) */
+  public Object visitRepeatForRange(RepeatForRange ast, Object o) { 
+    ast.RVD.visit(this, null);
+    ast.E.visit(this, null);
+    ast.C.visit(this, null);
+    
+    return(null);
+  }
+
+  /* Se agrega para visitar el repeat for range while command (Austin) */
+  public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) { 
+    ast.RVD.visit(this, null);
+    ast.E1.visit(this, null);
+    ast.C.visit(this, null);
+    ast.E2.visit(this, null);
+    
+    return(null);
+  }
+
+  /* Se agrega para visitar el repeat for range until command (Austin) */
+  public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) { 
+    ast.RVD.visit(this, null);
+    ast.E1.visit(this, null);
+    ast.C.visit(this, null);
+    ast.E2.visit(this, null);
+    
+    return(null);
+  }
+
+  /* Se agrega para visitar el repeat for range until command (Austin) */
+  public Object visitRepeatIn(RepeatIn ast, Object o) { 
+    ast.IVD.visit(this, null);
+    ast.C.visit(this, null);
+    
+    return(null);
+  }
 
   // </editor-fold>
 
@@ -297,7 +349,22 @@ public class TableVisitor implements Visitor {
             
       return(null);
   }
-  
+
+  /* Para tomar en cuenta las declaraciones de procedimientos y funciones mutuamente recursivas (Austin) */
+  public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object obj) {
+    ast.PFD.visit(this, null);
+
+    return(null);
+  }
+
+  /* Para tomar en cuenta las declaraciones de procedimientos y funciones mutuamente recursivas (Austin) */
+  public Object visitLocalDeclaration(LocalDeclaration ast, Object obj) {
+      ast.D1.visit(this, null);
+      ast.D2.visit(this, null);
+
+      return(null);
+  }
+
   public Object visitSequentialDeclaration(SequentialDeclaration ast, Object o) {   
       ast.D1.visit(this, null);
       ast.D2.visit(this, null);
