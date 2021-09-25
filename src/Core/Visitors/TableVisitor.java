@@ -65,6 +65,7 @@ import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
@@ -72,7 +73,6 @@ import Triangle.CodeGenerator.Field;
 import Triangle.CodeGenerator.KnownAddress;
 import Triangle.CodeGenerator.KnownRoutine;
 import Triangle.CodeGenerator.KnownValue;
-import Triangle.CodeGenerator.TypeRepresentation;
 import Triangle.CodeGenerator.UnknownAddress;
 import Triangle.CodeGenerator.UnknownRoutine;
 import Triangle.CodeGenerator.UnknownValue;
@@ -84,7 +84,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * Generates a DefaultTableModel, used to draw a Jable.
  *
- * @author Luis Leopoldo Pérez <luiperpe@ns.isi.ulatina.ac.cr>
+ * @author Luis Leopoldo Pï¿½rez <luiperpe@ns.isi.ulatina.ac.cr>
  */
 public class TableVisitor implements Visitor {
     
@@ -308,6 +308,20 @@ public class TableVisitor implements Visitor {
       ast.T.visit(this, null);
       return(null);
   }
+
+  public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {      
+    try {
+    addIdentifier(ast.I.spelling, 
+            "KnownAddress", 
+            (ast.entity!=null?ast.entity.size:0), 
+            ((KnownAddress)ast.entity).address.level, 
+            ((KnownAddress)ast.entity).address.displacement, 
+            -1);
+    } catch (NullPointerException e) { }
+    
+    ast.E.visit(this, null);
+    return(null);
+}
   
   // </editor-fold>
 

@@ -48,6 +48,7 @@ public interface Visitor {
   public abstract Object visitTypeDeclaration(TypeDeclaration ast, Object o);
   public abstract Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast, Object o);
   public abstract Object visitVarDeclaration(VarDeclaration ast, Object o);
+  public abstract Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o);
 
   // Repeats 
   public abstract Object visitForCommand(ForCommand ast, Object o);
@@ -110,5 +111,6 @@ public interface Visitor {
 
   // Programs
   public abstract Object visitProgram(Program ast, Object o);
+
 
 }

@@ -58,6 +58,11 @@ final class Token extends Object {
 
   // Token classes...
 
+  /* CAMBIOS (Austin)
+    - Se agregaron las clases for, from, local, range, recursive, repeat, select, skip,
+    to, until, when, | , .. 
+    - Se eliminó la clase begin
+    - Se reindexaron las clases */
   public static final int
 
     // literals, identifiers, operators...
@@ -67,80 +72,104 @@ final class Token extends Object {
     OPERATOR	= 3,
 
     // reserved words - must be in alphabetical order...
-    ARRAY		= 4,
-    BEGIN		= 5,
-    CONST		= 6,
-    DO			= 7,
-    ELSE		= 8,
-    END			= 9,
-    FUNC		= 10,
-    IF			= 11,
-    IN			= 12,
-    LET			= 13,
-    OF			= 14,
-    PROC		= 15,
-    RECORD		= 16,
-    THEN		= 17,
-    TYPE		= 18,
-    VAR			= 19,
-    WHILE		= 20,
+    ARRAY		  = 4,
+    CONST		  = 5,
+    DO			  = 6,
+    ELSE		  = 7,
+    END			  = 8,
+    FUNC		  = 9,
+    FOR       = 10,
+    FROM      = 11,
+    IF			  = 12,
+    IN			  = 13,
+    LET			  = 14,
+    LOCAL     = 15,
+    OF			  = 16,
+    PROC		  = 17,
+    RANGE     = 18,
+    RECORD	  = 19,
+    RECURSIVE = 20,
+    REPEAT    = 21,
+    SELECT    = 22,
+    SKIP      = 23,
+    THEN		  = 24,
+    TO        = 25,
+    TYPE		  = 26,
+    UNTIL     = 27,
+    VAR			  = 28,
+    WHEN      = 29,
+    WHILE		  = 30,
 
     // punctuation...
-    DOT			= 21,
-    COLON		= 22,
-    SEMICOLON	= 23,
-    COMMA		= 24,
-    BECOMES		= 25,
-    IS			= 26,
+    DOT			  = 31,
+    DOUBLEDOT = 32,
+    COLON		  = 33,
+    SEMICOLON	= 34,
+    COMMA		  = 35,
+    PIPE      = 36,
+    BECOMES   = 37,
+    IS			  = 38,
 
     // brackets...
-    LPAREN		= 27,
-    RPAREN		= 28,
-    LBRACKET	= 29,
-    RBRACKET	= 30,
-    LCURLY		= 31,
-    RCURLY		= 32,
+    LPAREN		= 39,
+    RPAREN		= 40,
+    LBRACKET	= 41,
+    RBRACKET	= 42,
+    LCURLY		= 43,
+    RCURLY		= 44,
 
     // special tokens...
-    EOT			= 33,
-    ERROR		= 34;
+    EOT			= 45,
+    ERROR		= 46;
 
   private static String[] tokenTable = new String[] {
-    "<int>",
-    "<char>",
-    "<identifier>",
-    "<operator>",
-    "array",
-    "begin",
-    "const",
-    "do",
-    "else",
-    "end",
-    "func",
-    "if",
-    "in",
-    "let",
-    "of",
-    "proc",
-    "record",
-    "then",
-    "type",
-    "var",
-    "while",
-    ".",
-    ":",
-    ";",
-    ",",
-    ":=",
-    "~",
-    "(",
-    ")",
-    "[",
-    "]",
-    "{",
-    "}",
-    "",
-    "<error>"
+    "<int>",        // 0
+    "<char>",       // 1
+    "<identifier>", // 2
+    "<operator>",   // 3
+    "array",        // 4
+    "const",        // 5
+    "do",           // 6
+    "else",         // 7
+    "end",          // 8
+    "func",         // 9
+    "for",          // 10
+    "from",         // 11
+    "if",           // 12
+    "in",           // 13
+    "let",          // 14
+    "local",        // 15
+    "of",           // 16
+    "proc",         // 17
+    "range",        // 18
+    "record",       // 19
+    "recursive",    // 20
+    "repeat",       // 21
+    "select",       // 22
+    "skip",         // 23
+    "then",         // 24
+    "to",           // 25
+    "type",         // 26
+    "until",        // 27
+    "var",          // 28
+    "when",         // 29
+    "while",        // 30
+    ".",            // 31
+    "..",           // 32
+    ":",            // 33
+    ":",            // 34
+    ",",            // 35
+    "|",            // 36
+    ":=",           // 37
+    "~",            // 38
+    "(",            // 39
+    ")",            // 40
+    "[",            // 41
+    "]",            // 42
+    "{",            // 43
+    "}",            // 44
+    "",             // 45
+    "<error>"       // 46
   };
 
   private final static int	firstReservedWord = Token.ARRAY,
