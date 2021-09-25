@@ -2,9 +2,11 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public class DoConditionalLoop extends Loop{
+//Cambios(Fernando)
+//Se crea esta clase para poder reconocer comandos con la estructura UntilCommand
+public class UntilCommand extends Command{
 
-    public DoConditionalLoop(Command cAST, Expression eAST, SourcePosition thePosition) {
+    public UntilCommand(Expression eAST,Command cAST,SourcePosition thePosition) {
         super(thePosition);
         this.C = cAST;
         this.E = eAST;
@@ -15,8 +17,7 @@ public class DoConditionalLoop extends Loop{
         // TODO Auto-generated method stub
         return null;
     }
-
-    Command C;
-    Expression E;
     
+    Expression E;
+    Command C;
 }
