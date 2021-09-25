@@ -17,7 +17,6 @@ package Triangle.AbstractSyntaxTrees;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class WhileCommand extends Command {
-
   public WhileCommand (Expression eAST, Command cAST, SourcePosition thePosition) {
     super (thePosition);
     E = eAST;

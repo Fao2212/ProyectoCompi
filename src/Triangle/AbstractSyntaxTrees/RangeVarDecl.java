@@ -3,6 +3,7 @@ package Triangle.AbstractSyntaxTrees;
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public class RangeVarDecl extends Declaration {
+    //Importante
     public RangeVarDecl (Identifier iAST, Expression eAST, SourcePosition thePosition) {
         super(thePosition);
         I = iAST;

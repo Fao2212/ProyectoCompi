@@ -2,12 +2,12 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public class ConditionalDoLoop extends Loop{
+public class WhileDoLoop extends Loop{
 
-    public ConditionalDoLoop(Expression eAST, Command C,SourcePosition thePosition) {
+    public WhileDoLoop(Expression eAST, Command cAST,SourcePosition thePosition) {
         super(thePosition);
-        this.eAST = eAST;
-        this.C = C;
+        this.E = eAST;
+        this.C = cAST;
     }
 
     @Override
@@ -16,7 +16,7 @@ public class ConditionalDoLoop extends Loop{
         return null;
     }
 
-    public Expression eAST;
-    public Command C;
-    
+
+    Expression E;
+    Command C;
 }

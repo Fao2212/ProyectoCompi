@@ -2,22 +2,21 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public class ForInLoop extends Loop{
+public class DoWhileLoop extends Loop{
 
-    public ForInLoop(Identifier I,Expression eAST,Command C,SourcePosition thePosition) {
+    public DoWhileLoop(Command cAST,Expression eAST,SourcePosition thePosition) {
         super(thePosition);
-        this.I = I;
-        this.eAST = eAST;
-        this.C = C;
+        this.C = cAST;
+        this.E = eAST;
     }
 
     @Override
     public Object visit(Visitor v, Object o) {
+        // TODO Auto-generated method stub
         return null;
     }
 
-    Identifier I;
-    Expression eAST;
     Command C;
+    Expression E;
     
 }
