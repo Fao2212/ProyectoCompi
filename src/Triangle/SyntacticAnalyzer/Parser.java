@@ -27,7 +27,6 @@ import Triangle.AbstractSyntaxTrees.CallExpression;
 import Triangle.AbstractSyntaxTrees.CharacterExpression;
 import Triangle.AbstractSyntaxTrees.CharacterLiteral;
 import Triangle.AbstractSyntaxTrees.Command;
-import Triangle.AbstractSyntaxTrees.ConditionalDoLoop;
 import Triangle.AbstractSyntaxTrees.Loop;
 import Triangle.AbstractSyntaxTrees.Range;
 import Triangle.AbstractSyntaxTrees.RangeVarDecl;
@@ -71,6 +70,7 @@ import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RepeatCommand;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
+import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -84,6 +84,7 @@ import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
 import Triangle.AbstractSyntaxTrees.TypeDenoter;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
+import Triangle.AbstractSyntaxTrees.UntilCommand;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
@@ -346,47 +347,108 @@ public class Parser {
       finish(commandPos);
       commandAST = new EmptyCommand(commandPos);
       break;
+    //Cambios(Fernando)
+    //Se utiliza el token REPEAT para poder parsear el repeat con sus diferentes variaciones
     
     case Token.REPEAT:
       {
         acceptIt();
-        accept(Token.FOR);
-        Identifier iAST = parseIdentifier();
-        if (currentToken.kind == Token.BECOMES) {
-          acceptIt();
-          accept(Token.RANGE);
-          Expression eAST1 = parseExpression();
-          RangeVarDecl rvdAST = new RangeVarDecl(iAST, eAST1, previousTokenPosition);
-          accept(Token.DOUBLEDOT);
-          Expression eAST2 = parseExpression();
-          if (currentToken.kind == Token.WHILE) {
-            acceptIt();
-            Expression eAST3 = parseExpression();
-            accept(Token.DO);
-            Command cAST = parseCommand();
-            accept(Token.END);
-            finish(commandPos);
-            RepeatForRangeWhile rfrwAST = new RepeatForRangeWhile(rvdAST, eAST2, cAST, eAST3, commandPos);
-          } else if (currentToken.kind == Token.UNTIL) {
-            acceptIt();
-            Expression eAST3 = parseExpression();
-            accept(Token.DO);
-            Command cAST = parseCommand();
-            accept(Token.END);
-            finish(commandPos);
-            RepeatForRangeUntil rfruAST = new RepeatForRangeUntil(rvdAST, eAST2, cAST, eAST3, commandPos);
-          } else {
-            syntacticError("\"%\" cannot start a Repeat-For-Range command", currentToken.spelling);
-          }
-        } else if (currentToken.kind == Token.IN) {
-          acceptIt();
-          Expression eAST3 = parseExpression();
-          InVarDecl ivdAST = new InVarDecl(iAST, eAST3, commandPos);
-          accept(Token.DO);
-          Command cAST = parseCommand();
-          accept(Token.END);
-        } else {
-          syntacticError("\"%\" cannot start a Repeat-In command", currentToken.spelling);
+        switch(currentToken.kind){
+          case Token.FOR:{
+            Identifier iAST = parseIdentifier();
+            if (currentToken.kind == Token.BECOMES) {
+              acceptIt();
+              accept(Token.RANGE);
+              Expression eAST1 = parseExpression();
+              RangeVarDecl rvdAST = new RangeVarDecl(iAST, eAST1, previousTokenPosition);
+              accept(Token.DOUBLEDOT);
+              Expression eAST2 = parseExpression();
+              if (currentToken.kind == Token.WHILE) {
+                acceptIt();
+                Expression eAST3 = parseExpression();
+                accept(Token.DO);
+                Command cAST = parseCommand();
+                accept(Token.END);
+                finish(commandPos);
+                RepeatForRangeWhile rfrwAST = new RepeatForRangeWhile(rvdAST, eAST2, cAST, eAST3, commandPos);
+              } else if (currentToken.kind == Token.UNTIL) {
+                acceptIt();
+                Expression eAST3 = parseExpression();
+                accept(Token.DO);
+                Command cAST = parseCommand();
+                accept(Token.END);
+                finish(commandPos);
+                RepeatForRangeUntil rfruAST = new RepeatForRangeUntil(rvdAST, eAST2, cAST, eAST3, commandPos);
+              } else {
+                syntacticError("\"%\" cannot start a Repeat-For-Range command", currentToken.spelling);
+              }
+            } else if (currentToken.kind == Token.IN) {
+              acceptIt();
+              Expression eAST3 = parseExpression();
+              InVarDecl ivdAST = new InVarDecl(iAST, eAST3, commandPos);
+              accept(Token.DO);
+              Command cAST = parseCommand();
+              accept(Token.END);
+              finish(commandPos);
+              commandAST = new RepeatIn(ivdAST, cAST, commandPos);
+            } else {
+              syntacticError("\"%\" cannot start a Repeat-In command", currentToken.spelling);
+            }
+              break;
+            }
+            case Token.WHILE:{
+              acceptIt();
+              Expression eAST = parseExpression();
+              accept(Token.DO);
+              Command cAST = parseCommand();
+              accept(Token.END);
+              finish(commandPos);
+              commandAST = new WhileCommand(eAST, cAST, commandPos);
+              break;
+            }
+            case Token.UNTIL:{
+              acceptIt();
+              Expression eAST = parseExpression();
+              accept(Token.DO);
+              Command cAST = parseCommand();
+              accept(Token.END);
+              finish(commandPos);
+              commandAST = new UntilCommand(eAST, cAST, commandPos);
+              break;
+            }
+            case Token.DO{
+              acceptIt();
+              Command cAST = parseCommand();
+              switch(currentToken.kind){
+                case Token.WHILE:{
+                  acceptIt();
+                  Expression eAST = parseExpression();
+                  accept(Token.END);
+                  finish(commandPos);
+                  commandAST = new WhileCommand(eAST, cAST, commandPos);
+                  break;
+                }
+                case Token.UNTIL:{
+                  acceptIt();
+                  Expression eAST = parseExpression();
+                  accept(Token.END);
+                  finish(commandPos);
+                  commandAST = new UntilCommand(eAST, cAST, commandPos);
+                  break;
+                }
+                default:{
+                  syntacticError("\"%\" cannot start a Repeat command",
+                  currentToken.spelling);
+                  break;
+                }
+              }
+              break;
+            }
+            default:{
+              syntacticError("\"%\" cannot start a Repeat command",
+              currentToken.spelling);
+              break;
+            }
         }
       }
     default:
