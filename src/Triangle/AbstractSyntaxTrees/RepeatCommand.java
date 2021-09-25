@@ -11,7 +11,8 @@ public class RepeatCommand extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        return v.visitRepeatCommand(this, o);
+        //TODO
+        return null;
     }
     
     Loop L;

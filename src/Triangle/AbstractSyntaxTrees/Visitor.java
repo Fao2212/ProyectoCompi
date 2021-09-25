@@ -50,13 +50,6 @@ public interface Visitor {
   public abstract Object visitVarDeclaration(VarDeclaration ast, Object o);
   public abstract Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o);
 
-  // Repeats 
-  public abstract Object visitForCommand(ForCommand ast, Object o);
-  public abstract Object visitRepeatCommand(RepeatCommand ast, Object o);
-  public abstract Object visitDoCommand(DoCommand ast, Object o);
-  public abstract Object visitRangeExp(RangeExp ast, Object o);
-  public abstract Object visitInExpression(InExpression ast, Object o);
-
   // Array Aggregates
   public abstract Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object o);
   public abstract Object visitSingleArrayAggregate(SingleArrayAggregate ast, Object o);

@@ -83,6 +83,7 @@ import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
@@ -940,37 +941,9 @@ public final class Checker implements Visitor {
 
   }
 
-  //Repeats
-  @Override
-  public Object visitForCommand(ForCommand ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 
   @Override
-  public Object visitRepeatCommand(RepeatCommand ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-
-  @Override
-  public Object visitDoCommand(DoCommand ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-
-  @Override
-  public Object visitRangeExp(RangeExp ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-
-  @Override
-  public Object visitInExpression(InExpression ast, Object o) {
+  public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
     // TODO Auto-generated method stub
     return null;
   }
