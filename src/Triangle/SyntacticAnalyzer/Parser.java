@@ -341,7 +341,6 @@ public class Parser {
       break;
     //Cambios(Fernando)
     //Se utiliza el token REPEAT para poder parsear el repeat con sus diferentes variaciones
-    
     case Token.REPEAT:
       {
         acceptIt();
@@ -362,7 +361,7 @@ public class Parser {
                 Command cAST = parseCommand();
                 accept(Token.END);
                 finish(commandPos);
-                RepeatForRangeWhile rfrwAST = new RepeatForRangeWhile(rvdAST, eAST2, cAST, eAST3, commandPos);
+                commandAST = new RepeatForRangeWhile(rvdAST, eAST2, cAST, eAST3, commandPos);
               } else if (currentToken.kind == Token.UNTIL) {
                 acceptIt();
                 Expression eAST3 = parseExpression();
@@ -370,7 +369,7 @@ public class Parser {
                 Command cAST = parseCommand();
                 accept(Token.END);
                 finish(commandPos);
-                RepeatForRangeUntil rfruAST = new RepeatForRangeUntil(rvdAST, eAST2, cAST, eAST3, commandPos);
+                commandAST = new RepeatForRangeUntil(rvdAST, eAST2, cAST, eAST3, commandPos);
               } else {
                 syntacticError("\"%\" cannot start a Repeat-For-Range command", currentToken.spelling);
               }
@@ -388,7 +387,7 @@ public class Parser {
             }
               break;
             }
-            case Token.WHILE:{
+          case Token.WHILE:{
               acceptIt();
               Expression eAST = parseExpression();
               accept(Token.DO);
@@ -398,7 +397,7 @@ public class Parser {
               commandAST = new WhileCommand(eAST, cAST, commandPos);
               break;
             }
-            case Token.UNTIL:{
+          case Token.UNTIL:{
               acceptIt();
               Expression eAST = parseExpression();
               accept(Token.DO);
@@ -407,40 +406,40 @@ public class Parser {
               finish(commandPos);
               commandAST = new UntilCommand(eAST, cAST, commandPos);
               break;
-            }
-            case Token.DO:{
-              acceptIt();
-              Command cAST = parseCommand();
-              switch(currentToken.kind){
-                case Token.WHILE:{
-                  acceptIt();
-                  Expression eAST = parseExpression();
-                  accept(Token.END);
-                  finish(commandPos);
-                  commandAST = new WhileCommand(eAST, cAST, commandPos);
-                  break;
-                }
-                case Token.UNTIL:{
-                  acceptIt();
-                  Expression eAST = parseExpression();
-                  accept(Token.END);
-                  finish(commandPos);
-                  commandAST = new UntilCommand(eAST, cAST, commandPos);
-                  break;
-                }
-                default:{
-                  syntacticError("\"%\" cannot start a Repeat command",
-                  currentToken.spelling);
-                  break;
-                }
+          }
+          case Token.DO:{
+            acceptIt();
+            Command cAST = parseCommand();
+            switch(currentToken.kind){
+              case Token.WHILE:{
+                acceptIt();
+                Expression eAST = parseExpression();
+                accept(Token.END);
+                finish(commandPos);
+                commandAST = new WhileCommand(eAST, cAST, commandPos);
+                break;
               }
-              break;
+              case Token.UNTIL: {
+                acceptIt();
+                Expression eAST = parseExpression();
+                accept(Token.END);
+                finish(commandPos);
+                commandAST = new UntilCommand(eAST, cAST, commandPos);
+                break;
+              }
+              default:{
+                syntacticError("\"%\" cannot start a Repeat command",
+                currentToken.spelling);
+                break;
+              }
             }
-            default:{
-              syntacticError("\"%\" cannot start a Repeat command",
-              currentToken.spelling);
-              break;
-            }
+            break;
+          }
+          default:{
+            syntacticError("\"%\" cannot start a Repeat command",
+            currentToken.spelling);
+            break;
+          }
         }
       }
     default:
