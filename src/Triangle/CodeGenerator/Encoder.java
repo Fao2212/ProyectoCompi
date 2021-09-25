@@ -40,6 +40,8 @@ import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
 import Triangle.AbstractSyntaxTrees.ConstFormalParameter;
 import Triangle.AbstractSyntaxTrees.Declaration;
+import Triangle.AbstractSyntaxTrees.DoUntilCommand;
+import Triangle.AbstractSyntaxTrees.DoWhileCommand;
 import Triangle.AbstractSyntaxTrees.DotVname;
 import Triangle.AbstractSyntaxTrees.EmptyActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.EmptyCommand;
@@ -57,6 +59,7 @@ import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
 import Triangle.AbstractSyntaxTrees.LetExpression;
+import Triangle.AbstractSyntaxTrees.LocalDeclaration;
 import Triangle.AbstractSyntaxTrees.MultipleActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.MultipleArrayAggregate;
 import Triangle.AbstractSyntaxTrees.MultipleFieldTypeDenoter;
@@ -69,6 +72,11 @@ import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
+import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
+import Triangle.AbstractSyntaxTrees.RepeatForRange;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
+import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
+import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -82,6 +90,7 @@ import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
 import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
+import Triangle.AbstractSyntaxTrees.UntilCommand;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
@@ -997,8 +1006,63 @@ public final class Encoder implements Visitor {
     }
   }
 
+  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 2 (Austin) */
   @Override
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatUntilCommand(UntilCommand ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatForRange(RepeatForRange ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatIn(RepeatIn ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
     // TODO Auto-generated method stub
     return null;
   }
