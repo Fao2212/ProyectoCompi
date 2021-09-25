@@ -311,6 +311,7 @@ public class Parser {
         Command cAST = parseCommand(); // Se pasa de singleCommand a Command (Austin)
         finish(commandPos);
         commandAST = new LetCommand(dAST, cAST, commandPos);
+        accept(Token.END);            // Se espera que termine con el Token END (Austin)
       }
       break;
 
@@ -330,15 +331,6 @@ public class Parser {
 
     // Se elimina el case Token.WHILE (Austin)
 
-    case Token.SEMICOLON:
-    case Token.END:
-    case Token.ELSE:
-    case Token.IN:
-    case Token.EOT:
-
-      finish(commandPos);
-      commandAST = new EmptyCommand(commandPos);
-      break;
     //Cambios(Fernando)
     //Se utiliza el token REPEAT para poder parsear el repeat con sus diferentes variaciones
     case Token.REPEAT:
@@ -442,8 +434,20 @@ public class Parser {
           }
         }
       }
+
+    case Token.SEMICOLON:
+    case Token.END:
+    case Token.ELSE:
+    case Token.IN:
+    case Token.EOT:
+    case Token.SKIP:  // Se agrega el token SKIP (Austin)
+
+      finish(commandPos);
+      commandAST = new EmptyCommand(commandPos);
+      break;
+
     default:
-      syntacticError("\"%\" cannot start a Repeat command",
+      syntacticError("\"%\" cannot start a command",
         currentToken.spelling);
       break;
     }
@@ -726,10 +730,10 @@ public class Parser {
 
     SourcePosition declarationPos = new SourcePosition();
     start(declarationPos);
-    declarationAST = parseCompoundDeclaration();
+    declarationAST = parseCompoundDeclaration(); // Se cambia de singleDeclaration a compoundDeclaration (Austin)
     while (currentToken.kind == Token.SEMICOLON) {
       acceptIt();
-      Declaration d2AST = parseCompoundDeclaration();
+      Declaration d2AST = parseCompoundDeclaration(); // Se cambia de singleDeclaration a compoundDeclaration (Austin)
       finish(declarationPos);
       declarationAST = new SequentialDeclaration(declarationAST, d2AST,
         declarationPos);
@@ -737,6 +741,8 @@ public class Parser {
     return declarationAST;
   }
 
+  /* Se agrega el nuevo método parseCompoundDeclaration para reconocer
+    este nuevo tipo de estructura sintáctica (Austin) */
   Declaration parseCompoundDeclaration() throws SyntaxError {
     Declaration declarationAST = null; // in case there's a syntactic error
 
@@ -778,6 +784,9 @@ public class Parser {
     return declarationAST;
   }
 
+  /* CAMBIOS (Austin)
+     Se agrega la regla para reconocer la declaración de un variable
+     ya inicializada */
   Declaration parseSingleDeclaration() throws SyntaxError {
     Declaration declarationAST = null; // in case there's a syntactic error
 
@@ -870,6 +879,8 @@ public class Parser {
     return declarationAST;
   }
 
+  /* Se agregó este método para reconocer 1 o más estructuras sintácticas de funciones
+     y procedimientos mutuamente recursivas (Austin) */
   Declaration parseProcFuncsDeclaration() throws SyntaxError {
     Declaration declarationAST = null; // in case there's a syntactic error
 
@@ -887,6 +898,8 @@ public class Parser {
     return declarationAST;
   }
 
+  /* Se agregó este método para reconocer una estructura sintáctica de función
+     o procedimiento mutuamente recursivo (Austin) */
   Declaration parseProcFuncDeclaration() throws SyntaxError {
     Declaration declarationAST = null; // in case there's a syntactic error
 
