@@ -16,6 +16,6 @@ public class RepeatForRangeWhile extends Command {
     }
 
     public RangeVarDecl RVD;
-    public Expression E1,E2;
+    public Expression E1, E2;
     public Command C;
 }

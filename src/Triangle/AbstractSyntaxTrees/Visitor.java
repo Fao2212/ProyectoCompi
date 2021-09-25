@@ -27,7 +27,7 @@ public interface Visitor {
   public abstract Object visitRepeatWhileCommand(WhileCommand ast, Object o);
   public abstract Object visitRepeatUntilCommand(UntilCommand ast, Object o);
   public abstract Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o);
-  public abstract Object visitRepeatDoWhileCommand(DoUntilCommand ast, Object o);
+  public abstract Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o);
   public abstract Object visitRepeatForRange(RepeatForRange ast, Object o);
   public abstract Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o);
   public abstract Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o);
