@@ -27,6 +27,10 @@ import Triangle.AbstractSyntaxTrees.CallExpression;
 import Triangle.AbstractSyntaxTrees.CharacterExpression;
 import Triangle.AbstractSyntaxTrees.CharacterLiteral;
 import Triangle.AbstractSyntaxTrees.Command;
+<<<<<<< Updated upstream
+=======
+import Triangle.AbstractSyntaxTrees.Range;
+>>>>>>> Stashed changes
 import Triangle.AbstractSyntaxTrees.RangeVarDecl;
 import Triangle.AbstractSyntaxTrees.ConstActualParameter;
 import Triangle.AbstractSyntaxTrees.ConstDeclaration;
@@ -319,9 +323,15 @@ public class Parser {
         acceptIt();
         Expression eAST = parseExpression();
         accept(Token.THEN);
+<<<<<<< Updated upstream
         Command c1AST = parseCommand(); // Se pasa de singleCommand a Command (Austin)
         accept(Token.ELSE);
         Command c2AST = parseCommand(); // Se pasa de singleCommand a Command (Austin)
+=======
+        Command c1AST = parseCommand();
+        accept(Token.ELSE);
+        Command c2AST = parseRestOfIf();
+>>>>>>> Stashed changes
         finish(commandPos);
         commandAST = new IfCommand(eAST, c1AST, c2AST, commandPos);
       }
@@ -407,7 +417,11 @@ public class Parser {
               commandAST = new UntilCommand(eAST, cAST, commandPos);
               break;
             }
+<<<<<<< Updated upstream
             case Token.DO: {
+=======
+            case Token.DO:{
+>>>>>>> Stashed changes
               acceptIt();
               Command cAST = parseCommand();
               switch(currentToken.kind){
@@ -446,6 +460,37 @@ public class Parser {
       syntacticError("\"%\" cannot start a Repeat command",
         currentToken.spelling);
       break;
+    }
+    return commandAST;
+  }
+
+  Command parseRestOfIf() throws SyntaxError{
+    Command commandAST = null; // in case there's a syntactic error
+
+    SourcePosition commandPos = new SourcePosition();
+    start(commandPos);
+
+    switch (currentToken.kind) {
+
+    case Token.PIPE:
+      {
+        acceptIt();
+        Expression eAST = parseExpression();
+        accept(Token.THEN);
+        Command c1AST = parseCommand();
+        Command c2AST = parseRestOfIf();
+        finish(commandPos);
+        commandAST = new IfCommand(eAST, c1AST, c2AST, commandPos);
+        break;
+      }
+ 
+    case Token.ELSE:
+      {
+        acceptIt();
+        commandAST = parseCommand();
+        accept(Token.END);
+        break;
+      }
     }
     return commandAST;
   }
