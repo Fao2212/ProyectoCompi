@@ -71,7 +71,7 @@ import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
-import Triangle.AbstractSyntaxTrees.RecursiveProcFuncDeclaration;
+import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -759,7 +759,7 @@ public class Parser {
         Declaration dAST = parseProcFuncsDeclaration();
         accept(Token.END);
         finish(declarationPos);
-        declarationAST = new RecursiveProcFuncDeclaration(dAST, declarationPos);
+        declarationAST = new RecursiveProcFuncsDeclaration(dAST, declarationPos);
       }
       break;
     

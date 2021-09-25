@@ -39,6 +39,7 @@ import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
 import Triangle.AbstractSyntaxTrees.LetExpression;
+import Triangle.AbstractSyntaxTrees.LocalDeclaration;
 import Triangle.AbstractSyntaxTrees.MultipleActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.MultipleArrayAggregate;
 import Triangle.AbstractSyntaxTrees.MultipleFieldTypeDenoter;
@@ -51,6 +52,7 @@ import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
+import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
 import Triangle.AbstractSyntaxTrees.RepeatForRange;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
@@ -218,11 +220,16 @@ public class TreeVisitor implements Visitor {
     public Object visitProcDeclaration(ProcDeclaration ast, Object obj) {
         return(createTernary("Procedure Declaration", ast.I, ast.FPS, ast.C));        
     }
-
-    public Object visit(ProcDeclaration ast, Object obj) {
-        return(createTernary("Procedure Declaration", ast.I, ast.FPS, ast.C));        
+    /* Se agrega para reconocer la declaración de procedimientos o funciones mutuamente recursivas (Austin) */
+    public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object obj) {
+        return(createUnary("Recursive Procedure-Function Declaration", ast.PFD));        
     }
     
+    /* Se agrega para reconocer delaraciones locales (Austin) */
+    public Object visitLocalDeclaration(LocalDeclaration ast, Object obj) {
+        return(createBinary("Local Declaration", ast.D1, ast.D2));        
+    }
+
     public Object visitSequentialDeclaration(SequentialDeclaration ast, Object obj) {
         return(createBinary("Sequential Declaration", ast.D1, ast.D2));
     }

@@ -2,16 +2,16 @@ package Triangle.AbstractSyntaxTrees;
 
 import Triangle.SyntacticAnalyzer.SourcePosition;
 
-public class RecursiveProcFuncDeclaration extends Declaration {
-    public RecursiveProcFuncDeclaration (Declaration dAST, SourcePosition thePosition) {
+public class RecursiveProcFuncsDeclaration extends Declaration {
+    public RecursiveProcFuncsDeclaration (Declaration dAST, SourcePosition thePosition) {
         super(thePosition);
-        PD = dAST;
+        PFD = dAST;
     }
 
     public Object visit(Visitor v, Object o) {
         return null;
     }
     
-    public Declaration PD;
+    public Declaration PFD;
     
 }
