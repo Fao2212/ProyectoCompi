@@ -1,0 +1,21 @@
+let
+
+	local
+
+		const a ~ 1
+
+	in
+
+		var n := a + 1
+
+	end
+
+in
+	if n > 1 then
+	   putint(n)
+	| n > 2 then
+	   putint(n)
+	else
+	   putint(n)
+	end;
+end
