@@ -54,6 +54,7 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
+import Triangle.AbstractSyntaxTrees.InVarDecl;
 import Triangle.AbstractSyntaxTrees.IntTypeDenoter;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
@@ -70,6 +71,7 @@ import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
+import Triangle.AbstractSyntaxTrees.RangeVarDecl;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
@@ -1063,6 +1065,18 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public Object visitInVarDecl(InVarDecl ast, Object o) {
     // TODO Auto-generated method stub
     return null;
   }

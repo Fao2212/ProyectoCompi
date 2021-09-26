@@ -9,7 +9,7 @@ public class RecursiveProcFuncsDeclaration extends Declaration {
     }
 
     public Object visit(Visitor v, Object o) {
-        return null;
+        return v.visitRecursiveProcFuncsDeclaration(this, o);
     }
     
     public Declaration PFD;

@@ -316,12 +316,10 @@ public class Parser {
         break;
 
       case Token.IF: {
-        System.out.println("Parsing if command ...");
         acceptIt();
         Expression eAST = parseExpression();
         accept(Token.THEN);
         Command c1AST = parseCommand();
-        System.out.println("Parsing rest of if ...");
         Command c2AST = parseRestOfIf();
         finish(commandPos);
         commandAST = new IfCommand(eAST, c1AST, c2AST, commandPos);
@@ -459,7 +457,6 @@ public class Parser {
     switch (currentToken.kind) {
 
       case Token.PIPE: {
-        System.out.println("Parsing pipe in if command ...");
         acceptIt();
         Expression eAST = parseExpression();
         accept(Token.THEN);
@@ -741,7 +738,6 @@ public class Parser {
       case Token.PROC:
       case Token.FUNC:
       case Token.TYPE:
-        System.out.println("Parseando single declaration");
         finish(declarationPos);
         declarationAST = parseSingleDeclaration();
         break;
@@ -756,7 +752,6 @@ public class Parser {
         break;
 
       case Token.LOCAL: {
-        System.out.println("Local declaration");
         acceptIt();
         Declaration d1AST = parseDeclaration();
         accept(Token.IN);

@@ -60,6 +60,8 @@ public interface Visitor {
   public abstract Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o);
   public abstract Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o);
   public abstract Object visitLocalDeclaration(LocalDeclaration ast, Object o);
+  public abstract Object visitRangeVarDecl(RangeVarDecl ast, Object o);
+  public abstract Object visitInVarDecl(InVarDecl ast, Object o);
 
   // Array Aggregates
   public abstract Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object o);

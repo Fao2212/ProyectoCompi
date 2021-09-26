@@ -10,7 +10,7 @@ public class InVarDecl extends Declaration {
     }
 
     public Object visit(Visitor v, Object o) {
-        return null;
+        return v.visitInVarDecl(this, o);
     }
     
     public Identifier I;

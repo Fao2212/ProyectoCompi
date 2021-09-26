@@ -12,7 +12,7 @@ public class RepeatForRangeWhile extends Command {
     }
 
     public Object visit (Visitor v, Object o) {
-        return null;
+        return v.visitRepeatForRangeWhile(this, o);
     }
 
     public RangeVarDecl RVD;

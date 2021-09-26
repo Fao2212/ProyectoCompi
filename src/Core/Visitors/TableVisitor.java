@@ -34,6 +34,7 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
+import Triangle.AbstractSyntaxTrees.InVarDecl;
 import Triangle.AbstractSyntaxTrees.IntTypeDenoter;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
@@ -50,6 +51,7 @@ import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
+import Triangle.AbstractSyntaxTrees.RangeVarDecl;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
@@ -409,7 +411,39 @@ public class TableVisitor implements Visitor {
     
     ast.E.visit(this, null);
     return(null);
-}
+  }
+
+  /* Para reconocer una declaración de variable en un ciclo for range (Austin) */
+  public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {      
+    try {
+    addIdentifier(ast.I.spelling, 
+            "KnownAddress", 
+            (ast.entity!=null?ast.entity.size:0), 
+            ((KnownAddress)ast.entity).address.level, 
+            ((KnownAddress)ast.entity).address.displacement, 
+            -1);
+    } catch (NullPointerException e) { }
+    
+    ast.E.visit(this, null);
+    return(null);
+  }
+
+  /* Para reconocer una declaración de variable en un ciclo for range in (Austin) */
+  public Object visitInVarDecl(InVarDecl ast, Object o) {      
+    try {
+    addIdentifier(ast.I.spelling, 
+            "KnownAddress", 
+            (ast.entity!=null?ast.entity.size:0), 
+            ((KnownAddress)ast.entity).address.level, 
+            ((KnownAddress)ast.entity).address.displacement, 
+            -1);
+    } catch (NullPointerException e) { }
+    
+    ast.E.visit(this, null);
+    return(null);
+  }
+
+
   
   // </editor-fold>
 

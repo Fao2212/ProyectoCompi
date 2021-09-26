@@ -34,6 +34,7 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
+import Triangle.AbstractSyntaxTrees.InVarDecl;
 import Triangle.AbstractSyntaxTrees.IntTypeDenoter;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
@@ -50,6 +51,7 @@ import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
+import Triangle.AbstractSyntaxTrees.RangeVarDecl;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
@@ -250,6 +252,16 @@ public class TreeVisitor implements Visitor {
     public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object obj) {
         return(createBinary("Initialized Variable Declaration", ast.I, ast.E));
     }
+    /*Se agrega para visitar la nueva declaración de variable de un rango for (Austin) */
+    public Object visitRangeVarDecl(RangeVarDecl ast, Object obj) {
+        return(createBinary("Range Variable Declaration", ast.I, ast.E));
+    }
+
+    /*Se agrega para visitar la nueva declaración de variable de un rango for in (Austin) */
+    public Object visitInVarDecl(InVarDecl ast, Object obj) {
+        return(createBinary("Range In Variable Declaration", ast.I, ast.E));
+    }
+
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Aggregates ">

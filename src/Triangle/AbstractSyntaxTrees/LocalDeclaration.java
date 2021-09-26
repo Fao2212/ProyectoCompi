@@ -10,7 +10,7 @@ public class LocalDeclaration extends Declaration {
     }
 
     public Object visit (Visitor v, Object o) {
-        return null;
+        return v.visitLocalDeclaration(this, o);
     }
     
     public Declaration D1,D2;

@@ -12,7 +12,7 @@ public class RepeatForRangeUntil extends Command {
     }
 
     public Object visit (Visitor v, Object o) {
-        return null;
+        return v.visitRepeatForRangeUntil(this, o);
     }
 
     public RangeVarDecl RVD;

@@ -14,8 +14,7 @@ public class UntilCommand extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        // TODO Auto-generated method stub
-        return null;
+        return v.visitRepeatUntilCommand(this, o);
     }
     
     public Expression E;

@@ -10,7 +10,7 @@ public class RepeatIn extends Command {
     }
 
     public Object visit (Visitor v, Object o) {
-        return null;
+        return v.visitRepeatIn(this, o);
     }
 
     public InVarDecl IVD;

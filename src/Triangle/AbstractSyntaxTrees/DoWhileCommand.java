@@ -14,8 +14,7 @@ public class DoWhileCommand extends Command{
 
     @Override
     public Object visit(Visitor v, Object o) {
-        // TODO Auto-generated method stub
-        return null;
+        return v.visitRepeatDoWhileCommand(this, o);
     }
     
     public Expression E;

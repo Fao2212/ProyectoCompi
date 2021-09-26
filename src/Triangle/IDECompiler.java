@@ -11,8 +11,8 @@ import Triangle.SyntacticAnalyzer.SourceFile;
 import Triangle.SyntacticAnalyzer.Scanner;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.SyntacticAnalyzer.Parser;
-import Triangle.ContextualAnalyzer.Checker;
-import Triangle.CodeGenerator.Encoder;
+// import Triangle.ContextualAnalyzer.Checker;
+// import Triangle.CodeGenerator.Encoder;
 
 
 

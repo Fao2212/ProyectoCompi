@@ -10,7 +10,7 @@ public class RangeVarDecl extends Declaration {
     }
 
     public Object visit(Visitor v, Object o) {
-        return null;
+        return v.visitRangeVarDecl(this,o);
     }
     
     public Identifier I;

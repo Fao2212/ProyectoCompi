@@ -11,7 +11,7 @@ public class RepeatForRange extends Command {
     }
 
     public Object visit (Visitor v, Object o) {
-        return null;
+        return v.visitRepeatForRange(this, o);
     }
 
     public RangeVarDecl RVD;

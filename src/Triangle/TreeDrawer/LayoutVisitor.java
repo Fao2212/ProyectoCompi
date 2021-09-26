@@ -46,6 +46,7 @@ import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
 import Triangle.AbstractSyntaxTrees.Identifier;
 import Triangle.AbstractSyntaxTrees.IfCommand;
 import Triangle.AbstractSyntaxTrees.IfExpression;
+import Triangle.AbstractSyntaxTrees.InVarDecl;
 import Triangle.AbstractSyntaxTrees.IntTypeDenoter;
 import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
@@ -62,6 +63,7 @@ import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
 import Triangle.AbstractSyntaxTrees.Program;
+import Triangle.AbstractSyntaxTrees.RangeVarDecl;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
 import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
@@ -211,8 +213,19 @@ public class LayoutVisitor implements Visitor {
     return layoutBinary("VarDecl.", ast.I, ast.T);
   }
 
+  /* Se incluye para tomar en cuenta las nuevas declaraciones de variables inicializadas (Austin)*/
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
     return layoutBinary("VarInitDecl.", ast.I, ast.E);
+  }
+
+  /* Se incluye para tomar en cuenta las nuevas declaraciones de variables para un ciclo for range (Austin)*/
+  public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
+    return layoutBinary("RangeVarDecl.", ast.I, ast.E);
+  }
+
+  /* Se incluye para tomar en cuenta las nuevas declaraciones de variables para un ciclo for in (Austin)*/
+  public Object visitInVarDecl(InVarDecl ast, Object o) {
+    return layoutBinary("InVarDecl.", ast.I, ast.E);
   }
 
   // Array Aggregates
