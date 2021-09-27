@@ -1,0 +1,7 @@
+let
+   var x: Integer;
+   var y: Char
+in
+   putin(x)
+
+end

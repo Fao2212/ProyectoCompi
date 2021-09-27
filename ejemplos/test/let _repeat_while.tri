@@ -1,0 +1,7 @@
+let
+  var x := 0
+in
+  igloo(var xd [lol],var lmao,var tell);
+  x := igloo;
+  skip
+end 

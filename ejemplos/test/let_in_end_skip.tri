@@ -1,0 +1,7 @@
+let
+   var x: Integer;
+   var y: Char
+in
+  repeat until x > 0 do let const i ~ 5 in if x < 2 then skip else skip end end end;
+   skip
+end

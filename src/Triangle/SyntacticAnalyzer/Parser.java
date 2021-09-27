@@ -72,6 +72,7 @@ import Triangle.AbstractSyntaxTrees.RepeatForRangeUntil;
 import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
+import Triangle.AbstractSyntaxTrees.RepeatForRange;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -360,6 +361,12 @@ public class Parser {
                 accept(Token.END);
                 finish(commandPos);
                 commandAST = new RepeatForRangeUntil(rvdAST, eAST2, cAST, eAST3, commandPos);
+              } else if(currentToken.kind == Token.DO){
+                acceptIt();
+                Command cAST = parseCommand();
+                accept(Token.END);
+                finish(commandPos);
+                commandAST = new RepeatForRange(rvdAST, eAST1, cAST, commandPos);
               } else {
                 syntacticError("\"%\" cannot start a Repeat-For-Range command", currentToken.spelling);
               }
