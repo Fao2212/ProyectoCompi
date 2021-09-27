@@ -9,20 +9,46 @@ public class TokenPrinter {
     lexicalAnalyser = lexer;
   }
 
+  //Se van a agregando los tokens que corresponden a los estilos que se piden en el trabajo se pone en 2 para tomar en cuenta los literales
+  //caracteres y enteros
+  //Se pone en el 39 como tope para que no tome los parentesis.
   public void printTokens() {
-    
     currentToken = lexicalAnalyser.scan();
-    
-    while (currentToken.kind != Token.EOT) {
-      if (currentToken.kind == Token.INTLITERAL ||
-              currentToken.kind == Token.CHARLITERAL ||
-              currentToken.kind == Token.IDENTIFIER ||
-              currentToken.kind == Token.OPERATOR)
-        System.out.println(currentToken.spelling);
-      else
-        System.out.println(currentToken.toString());
-      System.out.print('|');
-      currentToken = lexicalAnalyser.scan();
+    System.out.print(HTMLStyles.startHTML());
+      while (currentToken.kind != Token.EOT) {
+        //Verifica si hay algo en el separador y si este es un comentario
+        if(currentToken.separator.length() > 0 )
+          if(currentToken.separator.charAt(0)=='!')
+            System.out.print(HTMLStyles.commentHTMLString(currentToken.separator));
+          else 
+            getLineBreaks(currentToken.separator);
+            System.out.print(currentToken.separator);
+
+        if (currentToken.kind > 2  && currentToken.kind < 39)
+          //Para las palabras reservadas se genera un boldtype
+          System.out.print(HTMLStyles.boldHTMLString(currentToken.spelling));
+        else if(currentToken.kind < 2){
+          System.out.print(HTMLStyles.blueHTMLString(currentToken.spelling));
+        }
+        else{
+          System.out.print(currentToken.spelling); 
+        }
+        currentToken = lexicalAnalyser.scan();
+      }
+      System.out.print(HTMLStyles.finishHTML());   
+  }
+  void getLineBreaks(String separator){
+    for (char ch: separator.toCharArray()) {
+      if(ch == '\n')
+        System.out.print(HTMLStyles.addLineBreak());
     }
   }
 }
+
+
+//Palabras reservadas tokens en negrita
+//Numeros variable sstrings en azul CHARLITERAL|INTLITERAL #0000cd
+//Comentarios en verde  #00b300'
+//IDENTIFIER
+
+//Genera un paragraph.

@@ -19,6 +19,8 @@ final class Token extends Object {
 
   protected int kind;
   protected String spelling;
+  //Se crea un campo para guardar el separador si es que este existe.
+  protected String separator;
   protected SourcePosition position;
 
   public Token(int kind, String spelling, SourcePosition position) {
@@ -175,4 +177,11 @@ final class Token extends Object {
   private final static int	firstReservedWord = Token.ARRAY,
   				lastReservedWord  = Token.WHILE;
 
+
+  //Retorna su separador. Si se creo algo en el scanner entonces se retorna sino devuelve un "" este metodo es solo
+  //Para ser usado en el generador de HTMl (Fernando)
+  //El addSeparator solo asigna el nuevo separador.
+  public void addSeparator(String separator){
+    this.separator = separator;
+  }
 }
