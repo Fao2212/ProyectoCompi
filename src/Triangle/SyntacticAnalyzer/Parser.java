@@ -107,7 +107,9 @@ public class Parser {
     errorReporter = reporter;
     previousTokenPosition = new SourcePosition();
   }
-
+  public Token getCurrentToken()  {
+    return currentToken;
+  }
   // accept checks whether the current token matches tokenExpected.
   // If so, fetches the next token.
   // If not, reports a syntactic error.

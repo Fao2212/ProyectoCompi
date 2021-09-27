@@ -10,8 +10,9 @@ public class TokenPrinter {
   }
 
   public void printTokens() {
+    
     currentToken = lexicalAnalyser.scan();
-
+    
     while (currentToken.kind != Token.EOT) {
       if (currentToken.kind == Token.INTLITERAL ||
               currentToken.kind == Token.CHARLITERAL ||

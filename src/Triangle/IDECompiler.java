@@ -51,9 +51,12 @@ public class IDECompiler {
         report = new IDEReporter();
         Parser parser = new Parser(scanner, report);
         boolean success = false;
-        TokenPrinter tokenPrinter = new TokenPrinter(scanner);
+        SourceFile source1 = new SourceFile(sourceName);
+        Scanner scanner1 = new Scanner(source1);
+        TokenPrinter tokenPrinter = new TokenPrinter(scanner1);
         
         rootAST = parser.parseProgram();
+        
         tokenPrinter.printTokens();
         if (report.numErrors == 0) {
             //System.out.println("Contextual Analysis ...");
