@@ -46,3 +46,4 @@ hs_err_pid*
 
 # macOS stuff
 .DS_Store
+.vscode/launch.json
