@@ -1,0 +1,5 @@
+repeat
+for 
+i
+:=
+range 2 .. 5 do skip end
