@@ -77,9 +77,9 @@ final class Token extends Object {
     DO			  = 6,
     ELSE		  = 7,
     END			  = 8,
-    FUNC		  = 9,
-    FOR       = 10,
-    FROM      = 11,
+    FOR       = 9,
+    FROM      = 10,
+    FUNC		  = 11,
     IF			  = 12,
     IN			  = 13,
     LET			  = 14,
@@ -132,9 +132,9 @@ final class Token extends Object {
     "do",           // 6
     "else",         // 7
     "end",          // 8
-    "func",         // 9
-    "for",          // 10
-    "from",         // 11
+    "for",          // 9
+    "from",         // 10
+    "func",         // 11
     "if",           // 12
     "in",           // 13
     "let",          // 14
