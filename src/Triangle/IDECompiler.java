@@ -8,6 +8,7 @@ package Triangle;
 import Triangle.CodeGenerator.Frame;
 import java.awt.event.ActionListener;
 import Triangle.SyntacticAnalyzer.SourceFile;
+import Triangle.SyntacticAnalyzer.TokenPrinter;
 import Triangle.SyntacticAnalyzer.Scanner;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.SyntacticAnalyzer.Parser;
@@ -50,8 +51,10 @@ public class IDECompiler {
         report = new IDEReporter();
         Parser parser = new Parser(scanner, report);
         boolean success = false;
+        TokenPrinter tokenPrinter = new TokenPrinter(scanner);
         
         rootAST = parser.parseProgram();
+        tokenPrinter.printTokens();
         if (report.numErrors == 0) {
             //System.out.println("Contextual Analysis ...");
             //Checker checker = new Checker(report);
