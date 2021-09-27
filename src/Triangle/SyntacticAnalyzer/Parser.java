@@ -332,6 +332,7 @@ public class Parser {
       // Se utiliza el token REPEAT para poder parsear el repeat con sus diferentes
       // variaciones
       case Token.REPEAT: {
+        System.out.println("Leyendo un repeat");
         acceptIt();
         switch (currentToken.kind) {
           case Token.FOR: {
@@ -377,6 +378,7 @@ public class Parser {
             break;
           }
           case Token.WHILE: {
+            System.out.println("Leyendo un while");
             acceptIt();
             Expression eAST = parseExpression();
             accept(Token.DO);
@@ -429,7 +431,8 @@ public class Parser {
           }
         }
       }
-
+      break;
+      
       case Token.SEMICOLON:
       case Token.END:
       case Token.ELSE:
@@ -796,17 +799,16 @@ public class Parser {
       case Token.VAR: {
         acceptIt();
         Identifier iAST = parseIdentifier();
-        if (currentToken.kind == Token.COLON) {
-          accept(Token.COLON);
-          TypeDenoter tAST = parseTypeDenoter();
-          declarationAST = new VarDeclaration(iAST, tAST, declarationPos);
-        } else if (currentToken.kind == Token.BECOMES) {
-          accept(Token.BECOMES);
+        if (currentToken.kind == Token.BECOMES) {
+          acceptIt();
           Expression eAST = parseExpression();
           declarationAST = new VarInitializedDeclaration(iAST, eAST, declarationPos);
-        }
+        } else if (currentToken.kind == Token.COLON) {
+          acceptIt();
+          TypeDenoter tAST = parseTypeDenoter();
+          declarationAST = new VarDeclaration(iAST, tAST, declarationPos);
+        } 
         finish(declarationPos);
-
       }
         break;
 

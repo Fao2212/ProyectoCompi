@@ -1,0 +1,15 @@
+let
+	var n := a + 1
+in
+	if n > 1 then
+	   n := n + 1
+	|  n > 2 then
+	   n := n + 2
+    	|  n > 3 then
+       	   n := n + 3
+    	|  n < 10 then
+           n := n - 10
+	else
+	   putint(n)
+	end
+end
