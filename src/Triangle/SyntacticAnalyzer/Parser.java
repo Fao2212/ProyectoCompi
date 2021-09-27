@@ -332,10 +332,10 @@ public class Parser {
       // Se utiliza el token REPEAT para poder parsear el repeat con sus diferentes
       // variaciones
       case Token.REPEAT: {
-        System.out.println("Leyendo un repeat");
         acceptIt();
         switch (currentToken.kind) {
           case Token.FOR: {
+            acceptIt();
             Identifier iAST = parseIdentifier();
             if (currentToken.kind == Token.BECOMES) {
               acceptIt();
@@ -378,7 +378,6 @@ public class Parser {
             break;
           }
           case Token.WHILE: {
-            System.out.println("Leyendo un while");
             acceptIt();
             Expression eAST = parseExpression();
             accept(Token.DO);
@@ -439,7 +438,7 @@ public class Parser {
       case Token.IN:
       case Token.EOT:
       case Token.SKIP: // Se agrega el token SKIP (Austin)
-
+        acceptIt();
         finish(commandPos);
         commandAST = new EmptyCommand(commandPos);
         break;

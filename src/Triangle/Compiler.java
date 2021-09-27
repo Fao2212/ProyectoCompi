@@ -20,6 +20,7 @@ import Triangle.ContextualAnalyzer.Checker;
 import Triangle.SyntacticAnalyzer.Parser;
 import Triangle.SyntacticAnalyzer.Scanner;
 import Triangle.SyntacticAnalyzer.SourceFile;
+import Triangle.SyntacticAnalyzer.TokenPrinter;
 import Triangle.TreeDrawer.Drawer;
 
 /**
@@ -39,6 +40,7 @@ public class Compiler {
     private static Encoder encoder;
     private static ErrorReporter reporter;
     private static Drawer drawer;
+    private static TokenPrinter tokenPrinter;
 
     /** The AST representing the source program. */
     private static Program theAST;
@@ -79,9 +81,11 @@ public class Compiler {
         checker  = new Checker(reporter);
         encoder  = new Encoder(reporter);
         drawer   = new Drawer();
+        tokenPrinter = new TokenPrinter(scanner);
 
         // scanner.enableDebugging();
         theAST = parser.parseProgram();				// 1st pass
+        tokenPrinter.printTokens();
         if (reporter.numErrors == 0) {
             if (showingAST) {
                drawer.draw(theAST);
@@ -99,7 +103,7 @@ public class Compiler {
 
 	boolean successful = (reporter.numErrors == 0);
         if (successful) {
-            encoder.saveObjectProgram(objectName);
+            // encoder.saveObjectProgram(objectName);
             System.out.println("Compilation was successful.");
         } else {
             System.out.println("Compilation was unsuccessful.");
