@@ -17,8 +17,8 @@ public class TokenPrinter {
     System.out.print(HTMLStyles.startHTML());
       while (currentToken.kind != Token.EOT) {
         //Verifica si hay algo en el separador y si este es un comentario
-        if(currentToken.separator.length() > 0 )
-          if(currentToken.separator.charAt(0)=='!')
+        if (!currentToken.separator.isEmpty())
+          if (currentToken.separator.charAt(0)=='!') // Caso en que el separador es un comentario
             System.out.print(HTMLStyles.commentHTMLString(currentToken.separator));
           else 
             getLineBreaks(currentToken.separator);
@@ -39,8 +39,11 @@ public class TokenPrinter {
   }
   void getLineBreaks(String separator){
     for (char ch: separator.toCharArray()) {
-      if(ch == '\n')
+      if (ch == '\n')
         System.out.print(HTMLStyles.addLineBreak());
+      else if (ch == '\t') {
+        System.out.print(HTMLStyles.addTab());
+      }
     }
   }
 }

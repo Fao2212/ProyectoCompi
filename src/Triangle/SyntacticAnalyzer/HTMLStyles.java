@@ -13,12 +13,15 @@ public class HTMLStyles {
         return "<font color='#00b300'>" + string + "</font>";
     }
     static String startHTML(){
-        return "<p style=\"font-family: 'DejaVu Sans', monospace;\">";
+        return "<p style=\"font-family: 'DejaVu Sans', monospace; text-indent: 45px\">";
     }
     static String addLineBreak(){
         return "<br>";
     }
     static String finishHTML(){
         return "</p>";
+    }
+    static String addTab(){
+        return "&emsp;";
     }
 }
