@@ -25,6 +25,7 @@ public final class Scanner {
 
   private char currentChar;
   private StringBuffer currentSpelling;
+  private StringBuffer currentSeparator;
   private boolean currentlyScanningToken;
 
   private boolean isLetter(char c) {
@@ -63,6 +64,10 @@ public final class Scanner {
   private void takeIt() {
     if (currentlyScanningToken)
       currentSpelling.append(currentChar);
+      //Aca se agregara al separador actual el caracter que lo compone.
+    else{
+      currentSeparator.append(currentChar);
+    }
     currentChar = sourceFile.getSource();
   }
 
@@ -200,7 +205,10 @@ public final class Scanner {
     Token tok;
     SourcePosition pos;
     int kind;
+    //Aca cuando escanea entonces se creara un nuevo buffer para guardar el separador.(Fernando)
+    currentSeparator = new StringBuffer("");
 
+    //Aca tengo que hacer algo para obtener los separadores y mostrarlos en el HTML.(Fernando)
     currentlyScanningToken = false;
     while (currentChar == '!'
            || currentChar == ' '
@@ -218,6 +226,8 @@ public final class Scanner {
 
     pos.finish = sourceFile.getCurrentLine();
     tok = new Token(kind, currentSpelling.toString(), pos);
+    //Este metodo lo que hace es que va a agregar el separador que esta asociado con el token.
+    tok.addSeparator(currentSeparator.toString());
     if (debug)
       System.out.println(tok);
     return tok;
