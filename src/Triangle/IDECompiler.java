@@ -51,10 +51,10 @@ public class IDECompiler {
         report = new IDEReporter();
         Parser parser = new Parser(scanner, report);
         boolean success = false;
-        SourceFile source1 = new SourceFile(sourceName);
-        Scanner scanner1 = new Scanner(source1);
-        TokenPrinter tokenPrinter = new TokenPrinter(scanner1);
-        
+        SourceFile sourceForPrinting = new SourceFile(sourceName);
+        // Para imprimir (Austin)
+        Scanner scannerForPrinting = new Scanner(sourceForPrinting);
+        TokenPrinter tokenPrinter = new TokenPrinter(scannerForPrinting);
         rootAST = parser.parseProgram();
         
         tokenPrinter.printTokens();
