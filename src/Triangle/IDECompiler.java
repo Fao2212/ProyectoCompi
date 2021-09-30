@@ -8,7 +8,7 @@ package Triangle;
 import Triangle.CodeGenerator.Frame;
 import java.awt.event.ActionListener;
 import Triangle.SyntacticAnalyzer.SourceFile;
-import Triangle.SyntacticAnalyzer.TokenPrinter;
+import Triangle.SyntacticAnalyzer.TokenWriter;
 import Triangle.SyntacticAnalyzer.Scanner;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.SyntacticAnalyzer.Parser;
@@ -54,10 +54,10 @@ public class IDECompiler {
         SourceFile sourceForPrinting = new SourceFile(sourceName);
         // Para imprimir (Austin)
         Scanner scannerForPrinting = new Scanner(sourceForPrinting);
-        TokenPrinter tokenPrinter = new TokenPrinter(scannerForPrinting);
+        TokenWriter tokenWriter = new TokenWriter(sourceName, scannerForPrinting);
         rootAST = parser.parseProgram();
         
-        tokenPrinter.printTokens();
+        tokenWriter.writeTokens();
         if (report.numErrors == 0) {
             //System.out.println("Contextual Analysis ...");
             //Checker checker = new Checker(report);
