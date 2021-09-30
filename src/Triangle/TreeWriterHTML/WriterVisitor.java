@@ -564,6 +564,129 @@ public class WriterVisitor implements Visitor {
     return null;
   }
 
+  /* CAMBIOS (Austin)
+     Métodos para imprimir el XML de los árboles sintácticos. */
+  @Override
+  public Object visitRepeatWhileCommand(WhileCommand ast, Object o) {
+    writeLineHTML("<RepeatWhileCommand>");
+    ast.E.visit(this, null);
+    ast.C.visit(this, null);
+    writeLineHTML("</RepeatWhileCommand>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatUntilCommand(UntilCommand ast, Object o) {
+    writeLineHTML("<RepeatUntilCommand>");
+    ast.E.visit(this, null);
+    ast.C.visit(this, null);
+    writeLineHTML("</RepeatUntilCommand>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
+    writeLineHTML("<RepeatDoWhileCommand>");
+    ast.C.visit(this, null);
+    ast.E.visit(this, null);
+    writeLineHTML("</RepeatDoWhileCommand>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
+    writeLineHTML("<RepeatDoUntilCommand>");
+    ast.C.visit(this, null);
+    ast.E.visit(this, null);
+    writeLineHTML("</RepeatDoUntilCommand>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatForRange(RepeatForRange ast, Object o) {
+    writeLineHTML("<RepeatForRange>");
+    ast.RVD.visit(this, null);
+    ast.E.visit(this, null);
+    ast.C.visit(this, null);
+    writeLineHTML("</RepeatForRange>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
+    writeLineHTML("<RepeatForRangeWhile>");
+    ast.RVD.visit(this, null);
+    ast.E1.visit(this, null);
+    ast.E2.visit(this, null);
+    ast.C.visit(this, null);
+    writeLineHTML("</RepeatForRangeWhile>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
+    writeLineHTML("<RepeatForRangeUntil>");
+    ast.RVD.visit(this, null);
+    ast.E1.visit(this, null);
+    ast.E2.visit(this, null);
+    ast.C.visit(this, null);
+    writeLineHTML("</RepeatForRangeUntil>");
+    return null;
+  }
+
+  @Override
+  public Object visitRepeatIn(RepeatIn ast, Object o) {
+    writeLineHTML("<RepeatIn>");
+    ast.IVD.visit(this, null);
+    ast.C.visit(this, null);
+    writeLineHTML("</RepeatIn>");
+    return null;
+  }
+
+  @Override
+  public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
+    writeLineHTML("<VarInitializedDeclaration>");
+    ast.I.visit(this, null);
+    ast.E.visit(this, null);
+    writeLineHTML("</VarInitializedDeclaration>");
+    return null;
+  }
+
+  @Override
+  public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
+    writeLineHTML("<RecursiveProcFuncsDeclaration>");
+    ast.PFD.visit(this, null);
+    writeLineHTML("</RecursiveProcFuncsDeclaration>");
+    return null;
+  }
+
+  @Override
+  public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
+    writeLineHTML("<LocalDeclaration>");
+    ast.D1.visit(this, null);
+    ast.D2.visit(this, null);
+    writeLineHTML("</LocalDeclaration>");
+    return null;
+  }
+
+  @Override
+  public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
+    writeLineHTML("<RangeVarDecl>");
+    ast.I.visit(this, null);
+    ast.E.visit(this, null);
+    writeLineHTML("</RangeVarDecl>");
+    return null;
+  }
+
+  @Override
+  public Object visitInVarDecl(InVarDecl ast, Object o) {
+    writeLineHTML("<InVarDecl>");
+    ast.I.visit(this, null);
+    ast.E.visit(this, null);
+    writeLineHTML("</InVarDecl>");
+    return null;
+  }
+
   private void writeLineHTML(String line) {
     try {
       fileWriter.write(line);
@@ -585,88 +708,4 @@ public class WriterVisitor implements Visitor {
     else
       return operator;
   }
-
-  /* CAMBIOS (Austin)
-     Métodos para imprimir el XML de los árboles sintácticos. */
-  @Override
-  public Object visitRepeatWhileCommand(WhileCommand ast, Object o) {
-    writeLineHTML("<RepeatWhileCommand>");
-    ast.E.visit(this, null);
-    ast.C.visit(this, null);
-    writeLineHTML("</RepeatWhileCommand>");
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatUntilCommand(UntilCommand ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatForRange(RepeatForRange ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRepeatIn(RepeatIn ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitInVarDecl(InVarDecl ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

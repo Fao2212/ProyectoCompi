@@ -17,6 +17,7 @@ public class Writer {
   public void write(Program ast) {
     // Prepare the file to write
     try {
+      fileName = fileName.replaceAll("\\.tri", ".xml"); // Se cambia la extensión a XML (Austin)
       FileWriter fileWriter = new FileWriter(fileName);
 
       //HTML header
