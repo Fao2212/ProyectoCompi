@@ -445,13 +445,13 @@ public class Parser {
       case Token.END:
       case Token.ELSE:
       case Token.IN:
-      case Token.EOT:
       case Token.SKIP: // Se agrega el token SKIP (Austin)
         acceptIt();
         finish(commandPos);
         commandAST = new EmptyCommand(commandPos);
         break;
 
+      case Token.EOT:
       default:
         syntacticError("\"%\" cannot start a command", currentToken.spelling);
         break;

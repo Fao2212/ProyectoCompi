@@ -135,10 +135,10 @@ public final class Scanner {
         return Token.CHARLITERAL;
       } else
         return Token.ERROR;
-
+    
     case '.':
       takeIt();
-      if (currentChar == '.') {
+      if (currentChar == '.') { // Para tomar en cuenta el token DOUBLEDOT (Austin)
         takeIt();
         return Token.DOUBLEDOT;
       }
@@ -160,7 +160,7 @@ public final class Scanner {
       takeIt();
       return Token.COMMA;
     
-    case '|':
+    case '|': // Para tomar en cuenta el token PIPE
       takeIt();
       return Token.PIPE;
       
