@@ -92,37 +92,35 @@ final class Token extends Object {
     RECORD	  = 19,
     RECURSIVE = 20,
     REPEAT    = 21,
-    SELECT    = 22,
-    SKIP      = 23,
-    THEN		  = 24,
-    TO        = 25,
-    TYPE		  = 26,
-    UNTIL     = 27,
-    VAR			  = 28,
-    WHEN      = 29,
-    WHILE		  = 30,
+    SKIP      = 22,
+    THEN		  = 23,
+    TO        = 24,
+    TYPE		  = 25,
+    UNTIL     = 26,
+    VAR			  = 27,
+    WHILE		  = 28,
 
     // punctuation...
-    DOT			  = 31,
-    DOUBLEDOT = 32,
-    COLON		  = 33,
-    SEMICOLON	= 34,
-    COMMA		  = 35,
-    PIPE      = 36,
-    BECOMES   = 37,
-    IS			  = 38,
+    DOT			  = 29,
+    DOUBLEDOT = 30,
+    COLON		  = 31,
+    SEMICOLON	= 32,
+    COMMA		  = 33,
+    PIPE      = 34,
+    BECOMES   = 35,
+    IS			  = 36,
 
     // brackets...
-    LPAREN		= 39,
-    RPAREN		= 40,
-    LBRACKET	= 41,
-    RBRACKET	= 42,
-    LCURLY		= 43,
-    RCURLY		= 44,
+    LPAREN		= 37,
+    RPAREN		= 38,
+    LBRACKET	= 39,
+    RBRACKET	= 40,
+    LCURLY		= 41,
+    RCURLY		= 42,
 
     // special tokens...
-    EOT			= 45,
-    ERROR		= 46;
+    EOT			= 43,
+    ERROR		= 44;
 
   private static String[] tokenTable = new String[] {
     "<int>",        // 0
@@ -147,31 +145,29 @@ final class Token extends Object {
     "record",       // 19
     "recursive",    // 20
     "repeat",       // 21
-    "select",       // 22
-    "skip",         // 23
-    "then",         // 24
-    "to",           // 25
-    "type",         // 26
-    "until",        // 27
-    "var",          // 28
-    "when",         // 29
-    "while",        // 30
-    ".",            // 31
-    "..",           // 32
-    ":",            // 33
-    ":",            // 34
-    ",",            // 35
-    "|",            // 36
-    ":=",           // 37
-    "~",            // 38
-    "(",            // 39
-    ")",            // 40
-    "[",            // 41
-    "]",            // 42
-    "{",            // 43
-    "}",            // 44
-    "",             // 45
-    "<error>"       // 46
+    "skip",         // 22
+    "then",         // 23
+    "to",           // 24
+    "type",         // 25
+    "until",        // 26
+    "var",          // 27
+    "while",        // 28
+    ".",            // 29
+    "..",           // 30
+    ":",            // 31
+    ":",            // 32
+    ",",            // 33
+    "|",            // 34
+    ":=",           // 35
+    "~",            // 36
+    "(",            // 37
+    ")",            // 38
+    "[",            // 39
+    "]",            // 40
+    "{",            // 41
+    "}",            // 42
+    "",             // 43
+    "<error>"       // 44
   };
 
   private final static int	firstReservedWord = Token.ARRAY,
