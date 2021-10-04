@@ -1,0 +1,7 @@
+let 
+  recursive proc test() ~ 
+	skip
+  end
+in
+variable:= true 
+end

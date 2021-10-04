@@ -484,6 +484,11 @@ public class Parser {
         accept(Token.END);
         break;
       }
+
+      default:{
+        syntacticError("\"|\" or \"else\" expexted not \"%\"", currentToken.spelling);
+        break;
+      }
     }
     return commandAST;
   }
