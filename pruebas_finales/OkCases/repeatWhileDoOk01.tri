@@ -1,0 +1,4 @@
+!Ok
+repeat while i < 2 
+    do i := i + 1 
+end

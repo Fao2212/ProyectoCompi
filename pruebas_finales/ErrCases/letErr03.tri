@@ -1,0 +1,6 @@
+!falta un end
+let 
+    var test := 4 
+in 
+    if test > 6 then repeat until test < 5 do skip end
+end

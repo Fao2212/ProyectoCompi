@@ -1,0 +1,12 @@
+!Ok
+repeat for a := range 2 .. 1 
+    until a < -3 
+    do 
+        let 
+            var doSomething := true 
+        in if doSomething = true 
+            then print(doingSomething) 
+            else print(Bobba)
+            end 
+        end 
+end

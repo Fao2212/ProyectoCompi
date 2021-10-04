@@ -1,0 +1,8 @@
+!el tercer comando de la linea 5 tiene un ";" adicional
+if 
+    5 < 4 
+then 
+    skip; skip; skip; 
+else 
+    skip 
+end

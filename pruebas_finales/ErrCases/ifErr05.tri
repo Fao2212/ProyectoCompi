@@ -1,0 +1,12 @@
+!Falta el then despues de la segunda expresion
+let 
+    var test := 4 
+in 
+    if test > 6 then 
+        repeat until test < 5 do test := test + 1 end 
+    | spoon <24  
+        skip 
+    else 
+        skip 
+    end
+end

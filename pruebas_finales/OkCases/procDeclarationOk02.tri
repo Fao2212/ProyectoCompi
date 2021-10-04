@@ -1,0 +1,12 @@
+!Ok
+let
+    proc gato()~
+        let
+            var perro := 10
+        in
+            conejo := perro*gato
+        end
+    end
+in
+    animales()
+end 

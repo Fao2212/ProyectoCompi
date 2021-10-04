@@ -1,0 +1,8 @@
+!Paramatros del proc sin su tipo
+let
+    proc Hola(H,O,L,A) ~ 
+        let 
+            type holis ~ HolaTipo in holis := func Traducir(H,O,L,A):string end
+in
+    Ola := Hola -1
+end

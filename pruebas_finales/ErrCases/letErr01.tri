@@ -1,0 +1,10 @@
+!falta un end
+let
+    proc Hola(H:string,O:string,L:string,A:string) ~
+    let
+        func TraducirAIngles(H:string,O:string,L:string,A:string):string ~  print(resultado)
+
+	in
+		showResult()
+	end in Ola := Hola -1 
+end

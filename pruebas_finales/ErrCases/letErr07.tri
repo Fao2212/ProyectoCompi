@@ -1,0 +1,6 @@
+!No hay una declaracion valida
+let 
+    var n := 
+in 
+    if test > 6 then repeat until test < 5 do test := test + 1 end
+end 
