@@ -1,9 +1,0 @@
-Se hace enfasis en lkos casos que se agregaron se escogieron los modificaciones y los principales comando para escribir programs
-yd desde ahi se fueron hacinedo variaciones esn l pruebs para ver quie funcionaba y que no funcionavba
-Ademas se hacen pruebas en las cosas que se eliminaron para verificar si realmente ya no funcionaban
-Se abusa de la falta de un evaluador contextual para hacer pruebas que simplemente respeten la estructura sintacica
-Las pruebas no tienen mucho significado mas que el dew evaluar las formas sintacticas
-Sim embargo hay unos casos  nque si cuentan con estucturas que si tienen una logica contextual valida.
-Aprovechando esta falta de un evaluadro contextual se planea reutilizar estas pruebas para las giguebnte fase del proyectop
-Las rpuebas constan de los errrores y de sus correcciones. O de los caoss positivos y su contraparte negaticva.
-Otros casos de prueba surgieron de la inexperiencia del usuario y revisando la sintaxis se confirmo de que estaban evaluados correctamente.
