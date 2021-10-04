@@ -1,0 +1,2 @@
+!While no comeinza un comando
+while i < 2 do i := i + 1

@@ -1,0 +1,6 @@
+!Ok
+let
+    const Hola ~ 5
+in
+    Ola := Hola -1
+end

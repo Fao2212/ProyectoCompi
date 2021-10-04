@@ -1,0 +1,9 @@
+repeat for a in arregloMaximo[1000].abecedario 
+do 
+    let var doSomething := true 
+    in if doSomething = true 
+       then print(doingSomething) 
+       else print(Bobba)
+       end 
+    end 
+end

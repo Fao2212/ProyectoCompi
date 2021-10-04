@@ -1,0 +1,9 @@
+!Los then estan mal colocados van despues de la expresion
+repeat do 
+    if n< 8 then print(hello,bro) 
+    | then n < 6 print(hello,brow) 
+    | then n = 0 print(xlr8) 
+    else 
+        skip 
+    end 
+end

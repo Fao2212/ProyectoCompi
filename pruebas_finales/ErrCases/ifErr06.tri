@@ -1,0 +1,9 @@
+!Los if no tienen un then
+repeat do 
+    if n< 8 then print(hello,bro) 
+    | n < 6 print(hello,brow) 
+    | n = 0 print(xlr8) 
+    else 
+        skip 
+    end 
+end

@@ -1,0 +1,7 @@
+!Hace falta el command del else
+if 
+    5 < 4 
+then 
+    skip 
+else 
+end
