@@ -28,13 +28,13 @@ public class TokenWriter {
         while (currentToken.kind != Token.EOT) {
 
           //Verifica si hay algo en el separador y si este es un comentario
-          if (!currentToken.separator.isEmpty())
-            if (currentToken.separator.charAt(0)=='!') // Caso en que el separador es un comentario
-              fileWriter.write(HTMLStyles.commentHTMLString(currentToken.separator));
-            else 
-              getLineBreaks(fileWriter, currentToken.separator);
-              fileWriter.write(currentToken.separator);
-  
+          if (!currentToken.separator.isEmpty()){
+              Separator formatedSeparator = formatSeparator(fileWriter, currentToken.separator);
+              if(formatedSeparator.isComment())
+                fileWriter.write(HTMLStyles.commentHTMLString(formatedSeparator.getSeparator()));
+              else
+                fileWriter.write(formatedSeparator.getSeparator());
+          }
           if (currentToken.kind > 2  && currentToken.kind < 39)
             //Para las palabras reservadas se genera un boldtype
             fileWriter.write(HTMLStyles.boldHTMLString(currentToken.spelling));
@@ -55,21 +55,24 @@ public class TokenWriter {
     }
   }
 
-  void getLineBreaks(FileWriter fileWriter, String separator){
-    try {
+  Separator formatSeparator(FileWriter fileWriter, String separator){
+
+      Separator formatedSeparator = new Separator();
       for (char ch: separator.toCharArray()) {
         if (ch == '\n')
-          fileWriter.write(HTMLStyles.addLineBreak());
-        else if (ch == '\t') {
-          fileWriter.write(HTMLStyles.addTab());
+          formatedSeparator.addSeparator(HTMLStyles.addLineBreak());
+        if (ch == '\t') {
+          formatedSeparator.addSeparator(HTMLStyles.addTab());
         }
+        if(ch == '!' && !formatedSeparator.isComment())
+        {
+          formatedSeparator.setComment(true);
+        }
+        formatedSeparator.addSeparator(ch);
       }
-    }
-    catch (IOException e) {
-      System.err.println("Ocurrió un error al escribir el código fuente al archivo HTML.");
-      e.printStackTrace();
-    }
+      return formatedSeparator;
   }
+  
 }
 
 
@@ -79,3 +82,5 @@ public class TokenWriter {
 //IDENTIFIER
 
 //Genera un paragraph.
+
+//En todos los separadores tengo que buscar comentarios y espacios
