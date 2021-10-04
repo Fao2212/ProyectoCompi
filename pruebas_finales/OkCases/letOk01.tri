@@ -1,0 +1,11 @@
+!Ok
+let
+    var test := 4
+in
+    if 
+        test > 6
+    then
+        repeat until test < 5 do test := 1 end
+    else
+        print(xd) end
+end

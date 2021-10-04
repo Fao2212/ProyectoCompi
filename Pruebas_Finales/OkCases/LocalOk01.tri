@@ -1,4 +1,4 @@
-! Error: Falta el end del local
+!Ok
 let
 	local
 		var mensaje := holaMundo;

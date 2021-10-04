@@ -1,3 +1,4 @@
+!Ok
 let
 	recursive
 		func doble(var i : Integer) : Integer ~

@@ -1,0 +1,24 @@
+!Ok
+let 
+
+  recursive 
+
+	proc test() ~ 
+
+		skip
+
+	end
+
+	| proc pruebas(var i: String) ~
+
+		 prueba := Pruebacorrecta
+
+	end
+
+  end
+
+in
+
+	variable:= true 
+
+end
