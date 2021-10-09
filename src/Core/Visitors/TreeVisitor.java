@@ -151,7 +151,7 @@ public class TreeVisitor implements Visitor {
     public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object obj) {
         return(createQuaternary("Repeat For Range Until Command", ast.RVD, ast.E1, ast.C, ast.E2));
     }
-    /* Se agrega para reconocer un comando repeat for range while (Austin) */
+    /* Se agrega para reconocer un comando repeat for in  (Austin) */
     public Object visitRepeatIn(RepeatIn ast, Object obj) {
         return(createBinary("Repeat For In Command", ast.IVD, ast.C));
     }

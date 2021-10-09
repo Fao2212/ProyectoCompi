@@ -322,8 +322,8 @@ public class Parser {
         acceptIt();
         Expression eAST = parseExpression();
         accept(Token.THEN);
-        Command c1AST = parseCommand();
-        Command c2AST = parseRestOfIf();
+        Command c1AST = parseCommand(); // Se pasa de singleCommand a Command (Austin)
+        Command c2AST = parseRestOfIf(); // Nuevo método para reconocer los comandos if de varios niveles (Austin)
         finish(commandPos);
         commandAST = new IfCommand(eAST, c1AST, c2AST, commandPos);
       }
@@ -427,7 +427,7 @@ public class Parser {
                 break;
               }
               default: {
-                syntacticError("\"%\" cannot start a Repeat command", currentToken.spelling);
+                syntacticError("\"%\" cannot start a DoWhile or DoUntil command", currentToken.spelling);
                 break;
               }
             }
@@ -450,8 +450,8 @@ public class Parser {
         finish(commandPos);
         commandAST = new EmptyCommand(commandPos);
         break;
-
-      case Token.EOT:
+      
+      case Token.EOT: // Se evita que un programa esté vacío (Austin)
       default:
         syntacticError("\"%\" cannot start a command", currentToken.spelling);
         break;
@@ -459,6 +459,8 @@ public class Parser {
     return commandAST;
   }
 
+  /* Se agrega este método auxiliar para reconocer comandos condicionales
+     de múltiples niveles */
   Command parseRestOfIf() throws SyntaxError {
     Command commandAST = null; // in case there's a syntactic error
 
@@ -821,8 +823,7 @@ public class Parser {
         break;
 
       // Se modificó la regla para tener una Command en vez de un singleCommand en un
-      // proc
-      // y además ahora termina con la palabra clave "end" (Austin)
+      // proc y además ahora termina con la palabra clave "end" (Austin)
       case Token.PROC: {
         acceptIt();
         Identifier iAST = parseIdentifier();
