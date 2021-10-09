@@ -1,0 +1,8 @@
+!OK
+if 
+    5 < 4 
+then 
+    skip 
+else 
+    skip 
+end

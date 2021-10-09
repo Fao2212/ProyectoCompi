@@ -486,6 +486,11 @@ public class Parser {
         accept(Token.END);
         break;
       }
+
+      default:{
+        syntacticError("\"|\" or \"else\" expexted not \"%\"", currentToken.spelling);
+        break;
+      }
     }
     return commandAST;
   }
@@ -927,7 +932,6 @@ public class Parser {
         TypeDenoter tAST = parseTypeDenoter();
         accept(Token.IS);
         Expression eAST = parseExpression();
-        accept(Token.END);
         finish(declarationPos);
         declarationAST = new FuncDeclaration(iAST, fpsAST, tAST, eAST, declarationPos);
       }

@@ -1,0 +1,13 @@
+!Ok
+let
+	local
+		var mensaje := holaMundo;
+	in
+		var mensajeMayuscula := toUpper(mensaje)
+	end
+	;
+	var exito := Se logra pasar a mayuscula
+in
+	print(mensajeMayuscula);
+	print(exito)
+end

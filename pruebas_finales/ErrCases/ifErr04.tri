@@ -1,0 +1,7 @@
+!el if le hace falta el end del final
+if 
+    5 < 4 
+then 
+    skip; skip; skip 
+else 
+    skip

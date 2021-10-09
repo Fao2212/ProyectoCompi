@@ -1,0 +1,6 @@
+!Hace falta el else al final
+if 
+    5 < 4 
+then 
+    skip 
+end

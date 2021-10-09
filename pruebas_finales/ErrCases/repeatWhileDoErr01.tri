@@ -1,0 +1,2 @@
+!Hace falta un end para cerrar el repeat
+repeat while i < 2 do i := i + 1

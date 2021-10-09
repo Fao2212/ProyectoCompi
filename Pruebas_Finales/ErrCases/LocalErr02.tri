@@ -1,0 +1,14 @@
+! Error: Falta el end del local
+let
+	local
+		var mensaje := holaMundo;
+	in
+		var mensajeMayuscula := toUpper(mensaje)
+	! No hay un in
+	;
+	var exito := Se logra pasar a mayuscula
+in
+	print(mensajeMayuscula);
+	print(exito)
+end
+

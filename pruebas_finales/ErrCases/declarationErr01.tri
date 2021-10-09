@@ -1,0 +1,13 @@
+!La declaracion doSomething no tiene un var 
+repeat for a := range 2 .. 1 do 
+    let 
+        doSomething := true 
+    in 
+        if 
+            doSomething = true 
+        then 
+            print(doingSomething) 
+        else 
+            print(Bobba) 
+        end 
+    end

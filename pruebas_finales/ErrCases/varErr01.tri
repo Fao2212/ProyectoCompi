@@ -1,0 +1,6 @@
+!Asignacion incorrecta es requerido ":="
+let
+    var Hola ~ 5
+in
+    Ola := Hola -1
+end
