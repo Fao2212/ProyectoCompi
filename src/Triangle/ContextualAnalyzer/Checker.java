@@ -158,11 +158,12 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  
   public Object visitRepeatWhileCommand(WhileCommand ast, Object o) {
-    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
-    if (! eType.equals(StdEnvironment.booleanType))
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);  //Acceso a la expression y se convierte a tipo
+    if (! eType.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
       reporter.reportError("Boolean expression expected here", "", ast.E.position);
-    ast.C.visit(this, null);
+    ast.C.visit(this, null);      //Se visita el comando
     return null;
   }
 
@@ -959,51 +960,86 @@ public final class Checker implements Visitor {
   }
 
 
+  //Se copia la estructura del visitRepeatWhileCommand (Fernando)
   @Override
   public Object visitRepeatUntilCommand(UntilCommand ast, Object o) {
-    // TODO Auto-generated method stub
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);  //Acceso a la expression y se convierte a tipo
+    if (! eType.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
+      reporter.reportError("Boolean expression expected here", "", ast.E.position);
+    ast.C.visit(this, null);      //Se visita el comando
     return null;
   }
 
 
+  //Se copia la estructura del metodo visitRepeatUntilCommand pero se invierta el orden en que se visita el comando y la expresion (Fernando)
   @Override
   public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
-    // TODO Auto-generated method stub
+    ast.C.visit(this, null);      //Se visita el comando
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);  //Acceso a la expression y se convierte a tipo
+    if (! eType.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
+      reporter.reportError("Boolean expression expected here", "", ast.E.position);
     return null;
   }
 
-
+//Se copia la estructura del metodo visitRepeatDoWhileCommand(Fernando)
   @Override
   public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
-    // TODO Auto-generated method stub
+    ast.C.visit(this, null);      //Se visita el comando
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);  //Acceso a la expression y se convierte a tipo
+    if (! eType.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
+      reporter.reportError("Boolean expression expected here", "", ast.E.position);
     return null;
   }
 
 
+  //Se desarrolla el visit del RangeVarDeclaracion y se verifica el tipo de la expresion (Fernando)
   @Override
   public Object visitRepeatForRange(RepeatForRange ast, Object o) {
-    // TODO Auto-generated method stub
+    ast.RVD.visit(this,null); //Se exrae la declaracion de variable en un rango RVD y se visita Esto revisa su identificador y su expresion.
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);//Se valida que la segunda expresion sea de tipo entero
+    if(! eType.equals(StdEnvironment.integerType)){
+      reporter.reportError("Integer expression expected here", "", ast.E.position);
+    }
     return null;
   }
 
 
+  //Se copiea la estructura del visitRepeatForRange y se le agrega la comprobacion del whileCommand
   @Override
   public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
-    // TODO Auto-generated method stub
+    ast.RVD.visit(this,null);
+    TypeDenoter e1Type = (TypeDenoter) ast.E1.visit(this, null);//Se valida que la segunda expresion sea de tipo entero
+    if(! e1Type.equals(StdEnvironment.integerType)){
+      reporter.reportError("Integer expression expected here", "", ast.E1.position);
+    }
+    //ast.RWC.visit(this,null)//visitRepeatWhileCommand(new WhileCommand(ast.E2, ast.C, null), null);//Me hubiera gustado hacer un visit de un WhileCommand
+    TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
+    if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
+      reporter.reportError("Boolean expression expected here", "", ast.E2.position);
+    ast.C.visit(this, null);      //Se visita el comando
     return null;
   }
 
 
   @Override
   public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
-    // TODO Auto-generated method stub
+    ast.RVD.visit(this,null);
+    TypeDenoter e1Type = (TypeDenoter) ast.E1.visit(this, null);//Se valida que la segunda expresion sea de tipo entero
+    if(! e1Type.equals(StdEnvironment.integerType)){
+      reporter.reportError("Integer expression expected here", "", ast.E1.position);
+    }
+    //ast.RWC.visit(this,null)//visitRepeatUntilCommand(new UntilCommand(ast.E2, ast.C, null), null);//Me hubiera gustado hacer un visit de un UntilCommand
+    TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
+    if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
+      reporter.reportError("Boolean expression expected here", "", ast.E2.position);
+    ast.C.visit(this, null);      //Se visita el comando
     return null;
   }
 
 
   @Override
   public Object visitRepeatIn(RepeatIn ast, Object o) {
-    // TODO Auto-generated method stub
+    ast.IVD.visit(this, null);//Revision del arreglo que llega
     return null;
   }
 
@@ -1021,17 +1057,46 @@ public final class Checker implements Visitor {
     return null;
   }
 
-
+  //Visita la variable de ForRange y verifica que la expresion sea de tipo Integer(Fernando) 
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
-    // TODO Auto-generated method stub
+    idTable.openScope();//Se abre un scope para hacer la declaracion de la variable
+    Declaration binding = (Declaration)ast.I.visit(this, null); //Se visita el identificador
+    idTable.closeScope(); //Se cierra el scope ya que no es necesario que las expresiones conozcan este identificador
+    if(binding == null){
+      reportUndeclared(ast.I);  //Error de binding del identificador
+    }
+    else{
+      TypeDenoter eType = (TypeDenoter)ast.E.visit(this, null);//Se extrae el tipo de la expresion
+      if (! eType.equals(StdEnvironment.integerType)) //Revision de tipo booleano
+      reporter.reportError("Integer expression expected here", "", ast.E.position);
+    }
     return null;
   }
 
 
+  //Se toma como base el visitRangeVarDecl //Visita la variable de ForIn y verifica que la expresion sea de tipo Array(Fernando) 
   @Override
   public Object visitInVarDecl(InVarDecl ast, Object o) {
-    // TODO Auto-generated method stub
+    idTable.openScope();//Se abre un scope para hacer la declaracion de la variable
+    Declaration binding = (Declaration)ast.I.visit(this, null); //Se visita el identificador
+    idTable.closeScope(); //Se cierra el scope ya que no es necesario que las expresiones conozcan este identificador
+    if(binding == null){
+      reportUndeclared(ast.I);  //Error de binding del identificador
+    }
+    else{
+      ArrayTypeDenoter eType = (ArrayTypeDenoter)ast.E.visit(this, null);//No se si el AST va a tener que tener una ArrayTypeDenoter
+      //Se supone que su visitor siento un ArrayTypeDenoter deberia hacer el check de que todo es correcto para el array
+      //En teoria se llama el visistArrayExpression
+      if (eType != StdEnvironment.errorType) { //No se si todo esto esta demas debido a que ya se toma en cuenta en el visit del array.
+        if (! (eType instanceof ArrayTypeDenoter))
+          reporter.reportError ("array expected here", "", ast.E.position);
+        else {
+          //ast.type = ((ArrayTypeDenoter) vType).T; Esto es usad en SubscriptVName
+        }
+      }
+      //return ast.type; usado en SubscriptVName
+    }
     return null;
   }
 }
