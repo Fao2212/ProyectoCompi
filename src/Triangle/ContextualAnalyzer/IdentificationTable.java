@@ -14,16 +14,23 @@
 
 package Triangle.ContextualAnalyzer;
 
+import java.util.Stack;
+
 import Triangle.AbstractSyntaxTrees.Declaration;
+import javafx.util.Pair;
 
 public final class IdentificationTable {
 
   private int level;
   private IdEntry latest;
+  private LocalIdentificationTable localIdTable;
+  private Stack<IdEntry> localScopePrivateCheckpoints;
+  private Stack<IdEntry> localScopePublicCheckpoints;
 
   public IdentificationTable () {
     level = 0;
     latest = null;
+    localIdTable = new LocalIdentificationTable();
   }
 
   // Opens a new level in the identification table, 1 higher than the
@@ -32,6 +39,15 @@ public final class IdentificationTable {
   public void openScope () {
 
     level ++;
+  }
+  
+  public void beginLocal() {
+    localScopePrivateCheckpoints.add(this.latest);
+  }
+
+  public void endLocal() {
+    IdEntry latestPrivateCheckpoint = localScopePrivateCheckpoints.pop();
+    this.latest.previous = latestPrivateCheckpoint;
   }
 
   // Closes the topmost level in the identification table, discarding
@@ -61,20 +77,21 @@ public final class IdentificationTable {
     IdEntry entry = this.latest;
     boolean present = false, searching = true;
 
-    // Check for duplicate entry ...
+    // Check for duplicate entry ...  
     while (searching) {
       if (entry == null || entry.level < this.level)
         searching = false;
       else if (entry.id.equals(id)) {
         present = true;
         searching = false;
-       } else
-       entry = entry.previous;
+      } else
+      entry = entry.previous;
     }
 
     attr.duplicated = present;
     // Add new entry ...
     entry = new IdEntry(id, attr, this.level, this.latest);
+
     this.latest = entry;
   }
 

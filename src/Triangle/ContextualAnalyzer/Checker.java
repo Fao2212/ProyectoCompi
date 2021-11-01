@@ -1053,7 +1053,10 @@ public final class Checker implements Visitor {
 
   @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
+    idTable.beginLocal();
+    ast.D1.visit(this, o);
+    ast.D2.visit(this, o);
+    idTable.endLocal(); 
     return null;
   }
 
