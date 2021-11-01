@@ -14,6 +14,8 @@
 
 package Triangle.ContextualAnalyzer;
 
+import com.sun.xml.internal.bind.v2.model.core.ID;
+
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
@@ -95,6 +97,7 @@ import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
 import Triangle.AbstractSyntaxTrees.VarInitializedDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
+import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
 import Triangle.SyntacticAnalyzer.SourcePosition;
@@ -727,7 +730,16 @@ public final class Checker implements Visitor {
       } else if (binding instanceof VarFormalParameter) {
         ast.type = ((VarFormalParameter) binding).T;
         ast.variable = true;
-      } else
+      }
+      else if(binding instanceof InVarDecl){
+        //TODO:ast.type = ((InVarDecl) binding).T; No tenemos TypeDenoter para esos AST
+        ast.variable = false;
+      }
+      else if(binding instanceof RangeVarDecl){
+        //TODO:ast.type = ((RangeVarDecl) binding).T;
+        ast.variable = false;
+      }
+      else
         reporter.reportError ("\"%\" is not a const or var identifier",
                               ast.I.spelling, ast.I.position);
     return ast.type;
@@ -1000,6 +1012,7 @@ public final class Checker implements Visitor {
     if(! eType.equals(StdEnvironment.integerType)){
       reporter.reportError("Integer expression expected here", "", ast.E.position);
     }
+    ast.C.visit(this, null);//Se visita el comando
     return null;
   }
 
@@ -1016,7 +1029,8 @@ public final class Checker implements Visitor {
     TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
     if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
       reporter.reportError("Boolean expression expected here", "", ast.E2.position);
-    ast.C.visit(this, null);      //Se visita el comando
+
+    ast.C.visit(this, null);//Se visita el comando
     return null;
   }
 
@@ -1032,7 +1046,7 @@ public final class Checker implements Visitor {
     TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
     if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
       reporter.reportError("Boolean expression expected here", "", ast.E2.position);
-    ast.C.visit(this, null);      //Se visita el comando
+    ast.C.visit(this, null);//Se visita el comando
     return null;
   }
 
@@ -1040,6 +1054,10 @@ public final class Checker implements Visitor {
   @Override
   public Object visitRepeatIn(RepeatIn ast, Object o) {
     ast.IVD.visit(this, null);//Revision del arreglo que llega
+    idTable.openScope();
+    idTable.enter(id, attr);
+    ast.C.visit(this, null);
+    idTable.closeScope();
     return null;
   }
 
@@ -1060,16 +1078,14 @@ public final class Checker implements Visitor {
   //Visita la variable de ForRange y verifica que la expresion sea de tipo Integer(Fernando) 
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
-    idTable.openScope();//Se abre un scope para hacer la declaracion de la variable
-    Declaration binding = (Declaration)ast.I.visit(this, null); //Se visita el identificador
-    idTable.closeScope(); //Se cierra el scope ya que no es necesario que las expresiones conozcan este identificador
+    ConstDeclaration binding = (ConstDeclaration)ast.I.visit(this, null); //Y se trata como un ConstDeclaration
     if(binding == null){
       reportUndeclared(ast.I);  //Error de binding del identificador
     }
     else{
       TypeDenoter eType = (TypeDenoter)ast.E.visit(this, null);//Se extrae el tipo de la expresion
-      if (! eType.equals(StdEnvironment.integerType)) //Revision de tipo booleano
-      reporter.reportError("Integer expression expected here", "", ast.E.position);
+      if (! eType.equals(StdEnvironment.integerType)) //Revision de tipo entero
+        reporter.reportError("Integer expression expected here", "", ast.E.position);
     }
     return null;
   }
@@ -1078,24 +1094,23 @@ public final class Checker implements Visitor {
   //Se toma como base el visitRangeVarDecl //Visita la variable de ForIn y verifica que la expresion sea de tipo Array(Fernando) 
   @Override
   public Object visitInVarDecl(InVarDecl ast, Object o) {
-    idTable.openScope();//Se abre un scope para hacer la declaracion de la variable
-    Declaration binding = (Declaration)ast.I.visit(this, null); //Se visita el identificador
-    idTable.closeScope(); //Se cierra el scope ya que no es necesario que las expresiones conozcan este identificador
+    Declaration binding = (Declaration)ast.I.visit(this, null); //Se visita el identificador ya es declarado cuando se forma el arbol creo
     if(binding == null){
       reportUndeclared(ast.I);  //Error de binding del identificador
     }
     else{
-      ArrayTypeDenoter eType = (ArrayTypeDenoter)ast.E.visit(this, null);//No se si el AST va a tener que tener una ArrayTypeDenoter
+      ArrayTypeDenoter aType = (ArrayTypeDenoter)ast.E.visit(this, null);//No se si el AST va a tener que tener una ArrayTypeDenoter
       //Se supone que su visitor siento un ArrayTypeDenoter deberia hacer el check de que todo es correcto para el array
       //En teoria se llama el visistArrayExpression
-      if (eType != StdEnvironment.errorType) { //No se si todo esto esta demas debido a que ya se toma en cuenta en el visit del array.
-        if (! (eType instanceof ArrayTypeDenoter))
+      if (aType != StdEnvironment.errorType) { //No se si todo esto esta demas debido a que ya se toma en cuenta en el visit del array.
+        if (! (aType instanceof ArrayTypeDenoter))
           reporter.reportError ("array expected here", "", ast.E.position);
         else {
-          //ast.type = ((ArrayTypeDenoter) vType).T; Esto es usad en SubscriptVName
+          TypeDenoter eType = (TypeDenoter)aType.T.visit(this, null);
+          if (! eType.equals(ast.I.type)) //Revision de tipo entero
+            reporter.reportError("Identifier and array types does not match", "", ast.E.position);
         }
       }
-      //return ast.type; usado en SubscriptVName
     }
     return null;
   }
