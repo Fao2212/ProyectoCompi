@@ -21,21 +21,17 @@
 </MultipleArrayAggregate>
 </ArrayExpression>
 </InVarDecl>
-<AssignCommand>
-<SimpleVname>
-<Identifier value="x"/>
-</SimpleVname>
-<BinaryExpression>
+<CallCommand>
+<Identifier value="putint"/>
+<SingleActualParameterSequence>
+<ConstActualParameter>
 <VnameExpression>
 <SimpleVname>
 <Identifier value="x"/>
 </SimpleVname>
 </VnameExpression>
-<Operator value="+"/>
-<IntegerExpression>
-<IntegerLiteral value="1"/>
-</IntegerExpression>
-</BinaryExpression>
-</AssignCommand>
+</ConstActualParameter>
+</SingleActualParameterSequence>
+</CallCommand>
 </RepeatIn>
 </Program>

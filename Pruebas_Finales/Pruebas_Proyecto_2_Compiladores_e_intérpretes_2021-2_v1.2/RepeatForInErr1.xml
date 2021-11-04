@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="yes"?>
+<Program>
+<RepeatIn>
+<InVarDecl>
+<Identifier value="x"/>
+<BinaryExpression>
+<IntegerExpression>
+<IntegerLiteral value="8"/>
+</IntegerExpression>
+<Operator value="*"/>
+<IntegerExpression>
+<IntegerLiteral value="20"/>
+</IntegerExpression>
+</BinaryExpression>
+</InVarDecl>
+<CallCommand>
+<Identifier value="putint"/>
+<SingleActualParameterSequence>
+<ConstActualParameter>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="x"/>
+</SimpleVname>
+</VnameExpression>
+</ConstActualParameter>
+</SingleActualParameterSequence>
+</CallCommand>
+</RepeatIn>
+</Program>
