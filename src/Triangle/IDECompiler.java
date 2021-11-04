@@ -13,7 +13,7 @@ import Triangle.SyntacticAnalyzer.Scanner;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.SyntacticAnalyzer.Parser;
 import Triangle.TreeWriterHTML.Writer;
-// import Triangle.ContextualAnalyzer.Checker;
+import Triangle.ContextualAnalyzer.Checker;
 // import Triangle.CodeGenerator.Encoder;
 
 
@@ -57,6 +57,7 @@ public class IDECompiler {
         Scanner scannerForPrinting = new Scanner(sourceForPrinting);
         TokenWriter tokenWriter = new TokenWriter(sourceName, scannerForPrinting);
         rootAST = parser.parseProgram();
+
         // Se escribe el código fuente en un archivo HTML (Austin)
         tokenWriter.writeTokens();
         if (report.numErrors == 0) {
@@ -64,9 +65,9 @@ public class IDECompiler {
             Writer xmlWriter = new Writer(sourceName);
             xmlWriter.write(rootAST);
             
-            //System.out.println("Contextual Analysis ...");
-            //Checker checker = new Checker(report);
-            //checker.check(rootAST);
+            System.out.println("Contextual Analysis ...");
+            Checker checker = new Checker(report);
+            checker.check(rootAST);
             if (report.numErrors == 0) {
                 //System.out.println("Code Generation ...");
                 //Encoder encoder = new Encoder(report);

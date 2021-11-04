@@ -24,30 +24,52 @@ public final class IdentificationTable {
   private int level;
   private IdEntry latest;
   private LocalIdentificationTable localIdTable;
-  private Stack<IdEntry> localScopePrivateCheckpoints;
-  private Stack<IdEntry> localScopePublicCheckpoints;
+  private Stack<IdEntry> privateScopeMarkers;
+  private Stack<IdEntry> publicScopeMarkers;
 
   public IdentificationTable () {
     level = 0;
     latest = null;
-    localIdTable = new LocalIdentificationTable();
+    privateScopeMarkers = new Stack<IdEntry>();
   }
 
   // Opens a new level in the identification table, 1 higher than the
   // current topmost level.
 
   public void openScope () {
-
     level ++;
   }
   
+  public void printStack(Stack<IdEntry> stack) {
+    for (IdEntry idEntry : stack) {
+      System.out.println("---");
+      if (idEntry == null)
+        System.out.println("null");
+      else
+        System.out.println("|" + idEntry.id + "|");
+    }
+    System.out.println("---");
+  }
+
+  public void printIdTable() {
+    IdEntry walker = latest;
+    System.out.println("*******************");
+    while (walker.level != 0){
+      System.out.println("---");
+      System.out.println("|" + walker.id + "|");
+      walker = walker.previous;
+    }
+    System.out.println("---");
+  }
+
   public void beginLocal() {
-    localScopePrivateCheckpoints.add(this.latest);
+    System.out.println("Begin local");
+    privateScopeMarkers.add(this.latest);
   }
 
   public void endLocal() {
-    IdEntry latestPrivateCheckpoint = localScopePrivateCheckpoints.pop();
-    this.latest.previous = latestPrivateCheckpoint;
+    System.out.println("End local");
+    this.latest.previous = privateScopeMarkers.pop();
   }
 
   // Closes the topmost level in the identification table, discarding
@@ -85,7 +107,7 @@ public final class IdentificationTable {
         present = true;
         searching = false;
       } else
-      entry = entry.previous;
+        entry = entry.previous;
     }
 
     attr.duplicated = present;
@@ -93,6 +115,7 @@ public final class IdentificationTable {
     entry = new IdEntry(id, attr, this.level, this.latest);
 
     this.latest = entry;
+    printIdTable();
   }
 
   // Finds an entry for the given identifier in the identification table,

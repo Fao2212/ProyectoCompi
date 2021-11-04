@@ -1,0 +1,15 @@
+let
+    local
+        var x: Integer;
+        local
+            var y: Integer
+        in
+            var z: Integer
+        end
+    in
+        var q: Integer
+    end
+in
+    q := 1;
+    putint(q)
+end
