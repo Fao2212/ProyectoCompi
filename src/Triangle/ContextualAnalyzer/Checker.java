@@ -127,7 +127,7 @@ public final class Checker implements Visitor {
       ast.APS.visit(this, ((ProcFormalParameter) binding).FPS);
     } else
       reporter.reportError("\"%\" is not a procedure identifier",
-                           ast.I.spelling, ast.I.position);
+                            ast.I.spelling, ast.I.position);
     return null;
   }
 
@@ -222,7 +222,7 @@ public final class Checker implements Visitor {
       ast.type = ((FuncFormalParameter) binding).T;
     } else
       reporter.reportError("\"%\" is not a function identifier",
-                           ast.I.spelling, ast.I.position);
+                            ast.I.spelling, ast.I.position);
     return ast.type;
   }
 
@@ -727,7 +727,11 @@ public final class Checker implements Visitor {
       } else if (binding instanceof VarFormalParameter) {
         ast.type = ((VarFormalParameter) binding).T;
         ast.variable = true;
-      } else
+      } else if (binding instanceof VarInitializedDeclaration) { // Se agrega la opción de reconocer variables inicialidadas (Austin)
+        ast.type = ((VarInitializedDeclaration) binding).E.type;
+        ast.variable = true;
+      }
+      else
         reporter.reportError ("\"%\" is not a const or var identifier",
                               ast.I.spelling, ast.I.position);
     return ast.type;
@@ -955,7 +959,11 @@ public final class Checker implements Visitor {
  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 2 (Austin) */
   @Override
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+    idTable.enter(ast.I.spelling, ast);
+    if (ast.duplicated)
+      reporter.reportError ("identifier \"%\" already declared",
+                            ast.I.spelling, ast.position);
     return null;
   }
 
@@ -1055,6 +1063,7 @@ public final class Checker implements Visitor {
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
     idTable.beginLocal();
     ast.D1.visit(this, o);
+    idTable.beginIn();
     ast.D2.visit(this, o);
     idTable.endLocal(); 
     idTable.printIdTable();

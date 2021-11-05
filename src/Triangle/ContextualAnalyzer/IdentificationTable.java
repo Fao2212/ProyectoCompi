@@ -31,6 +31,7 @@ public final class IdentificationTable {
     level = 0;
     latest = null;
     privateScopeMarkers = new Stack<IdEntry>();
+    publicScopeMarkers = new Stack<IdEntry>();
   }
 
   // Opens a new level in the identification table, 1 higher than the
@@ -63,13 +64,24 @@ public final class IdentificationTable {
   }
 
   public void beginLocal() {
-    System.out.println("Begin local");
+    // System.out.println("Begin local");
     privateScopeMarkers.add(this.latest);
   }
 
+  public void beginIn() {
+    // System.out.println("Begin In");
+    publicScopeMarkers.add(this.latest);
+  }
+
   public void endLocal() {
-    System.out.println("End local");
-    this.latest.previous = privateScopeMarkers.pop();
+    // System.out.println("End local");
+    IdEntry publicScopeMarker = publicScopeMarkers.pop();
+    IdEntry entry = this.latest;
+    while (!entry.previous.equals(publicScopeMarker)) {
+      entry = entry.previous;
+    }
+    // Se reconecta con el marcador del alcance privado anterior
+    entry.previous = privateScopeMarkers.pop();
   }
 
   // Closes the topmost level in the identification table, discarding
@@ -115,7 +127,7 @@ public final class IdentificationTable {
     entry = new IdEntry(id, attr, this.level, this.latest);
 
     this.latest = entry;
-    printIdTable();
+    // printIdTable();
   }
 
   // Finds an entry for the given identifier in the identification table,
