@@ -75,6 +75,7 @@ import Triangle.AbstractSyntaxTrees.RecursiveProcFuncsDeclaration;
 import Triangle.AbstractSyntaxTrees.RepeatForRange;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
+import Triangle.AbstractSyntaxTrees.SequentialProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SimpleVname;
 import Triangle.AbstractSyntaxTrees.SingleActualParameterSequence;
@@ -888,9 +889,14 @@ public class Parser {
 
     declarationAST = parseProcFuncDeclaration();
     do {
-      accept(Token.PIPE);
-      Declaration d2AST = parseProcFuncDeclaration();
-      declarationAST = new SequentialDeclaration(declarationAST, d2AST, declarationPos);
+      if (currentToken.kind == Token.PIPE) {
+        acceptIt();
+        Declaration d2AST = parseProcFuncDeclaration();
+        declarationAST = new SequentialProcFuncDeclaration(declarationAST, d2AST, declarationPos);
+      } else {
+        syntacticError("\"%\" the symbol | (Pipe) was expected here", currentToken.spelling);
+      }
+      
     } while (currentToken.kind == Token.PIPE);
     finish(declarationPos);
     return declarationAST;

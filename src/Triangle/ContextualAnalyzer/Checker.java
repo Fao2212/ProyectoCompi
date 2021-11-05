@@ -76,6 +76,7 @@ import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
+import Triangle.AbstractSyntaxTrees.SequentialProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SimpleVname;
 import Triangle.AbstractSyntaxTrees.SingleActualParameterSequence;
@@ -1057,13 +1058,67 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  /* Funciones especiales para manejar recursividad en dos pasadas
+    La primera pasada es para ingresar los identificadores y atributos
+    de las funciones y procedimientos a la tabla de identificación
+    La segunda pasada es para  */
 
-  @Override
-  public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
+  public Object visitRecursiveFuncDeclaration1(FuncDeclaration ast, Object o) {
+    idTable.enter (ast.I.spelling, ast); // permite la recursividad
+    if (ast.duplicated)
+      reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position);
+    idTable.openScope();
+    ast.FPS.visit(this, null);
+    idTable.closeScope();
+    return null;
+  }
+  
+  public Object visitRecursiveFuncDeclaration2(FuncDeclaration ast, Object o) {
+    ast.T = (TypeDenoter) ast.T.visit(this, null);
+    idTable.openScope();
+    ast.FPS.visit(this, null);
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null); idTable.closeScope();
+    if (! ast.T.equals(eType))
+    reporter.reportError ("body of function \"%\" has wrong type", ast.I.spelling, ast.E.position);
+              return null;
+  }
+
+  public Object visitRecursiveProcDeclaration1(ProcDeclaration ast, Object o) {
+    idTable.enter (ast.I.spelling, ast); // permite la recursividad
+    if (ast.duplicated)
+      reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position);
+    idTable.openScope();
+    ast.FPS.visit(this, null);
+    idTable.closeScope();
     return null;
   }
 
+  public Object visitRecursiveProcDeclaration2(ProcDeclaration ast, Object o) {
+    idTable.openScope();
+    ast.FPS.visit(this, null);
+    ast.C.visit(this, null);
+    idTable.closeScope();
+    return null;
+  }
+
+    @Override
+  public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
+    // Se llaman los métodos para las 2 pasadas según sea el tipo de AST (Austin)
+    if (ast.D1.getClass() == FuncDeclaration.class) {
+      visitRecursiveFuncDeclaration1((FuncDeclaration) ast.D1, o);
+      visitRecursiveFuncDeclaration2((FuncDeclaration) ast.D1, o);
+    } else if (ast.D2.getClass() == ProcDeclaration.class) {
+      visitRecursiveProcDeclaration1((ProcDeclaration) ast.D2, o);
+      visitRecursiveProcDeclaration2((ProcDeclaration) ast.D2, o);
+    }
+    return null;
+  }
+
+  @Override
+  public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
+    ast.PFD.visit(this, o);
+    return null;
+  }
 
   @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
@@ -1118,4 +1173,5 @@ public final class Checker implements Visitor {
     }
     return null;
   }
+
 }

@@ -81,6 +81,7 @@ import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
+import Triangle.AbstractSyntaxTrees.SequentialProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SimpleVname;
 import Triangle.AbstractSyntaxTrees.SingleActualParameterSequence;
@@ -1064,6 +1065,12 @@ public final class Encoder implements Visitor {
   }
 
   @Override
+  public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
     // TODO Auto-generated method stub
     return null;
@@ -1080,6 +1087,5 @@ public final class Encoder implements Visitor {
     // TODO Auto-generated method stub
     return null;
   }
-
 
 }

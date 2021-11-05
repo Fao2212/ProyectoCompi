@@ -61,6 +61,7 @@ import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
+import Triangle.AbstractSyntaxTrees.SequentialProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SimpleVname;
 import Triangle.AbstractSyntaxTrees.SingleActualParameterSequence;
@@ -225,6 +226,11 @@ public class TreeVisitor implements Visitor {
     /* Se agrega para reconocer la declaración de procedimientos o funciones mutuamente recursivas (Austin) */
     public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object obj) {
         return(createUnary("Recursive Procedure-Function Declaration", ast.PFD));        
+    }
+
+    /* Se agregar para reconocer una secuencia de procedimientos y funciones mutuamente recursivos (Austin) */
+    public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
+        return(createBinary("Sequential Recursive Procedure-Function Declaration", ast.D1, ast.D2));
     }
     
     /* Se agrega para reconocer delaraciones locales (Austin) */
@@ -502,4 +508,5 @@ public class TreeVisitor implements Visitor {
         return(t);             
     }
     // </editor-fold>
+
 }

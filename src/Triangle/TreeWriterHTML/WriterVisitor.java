@@ -56,6 +56,7 @@ import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
+import Triangle.AbstractSyntaxTrees.SequentialProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SimpleVname;
 import Triangle.AbstractSyntaxTrees.SingleActualParameterSequence;
@@ -661,6 +662,15 @@ public class WriterVisitor implements Visitor {
   }
 
   @Override
+  public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
+    writeLineHTML("<SequentialRecursiveProcFuncDeclaration>");
+    ast.D1.visit(this, null);
+    ast.D2.visit(this, null);
+    writeLineHTML("</SequentialRecursiveProcFuncDeclaration>");
+    return null;
+  }
+
+  @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
     writeLineHTML("<LocalDeclaration>");
     ast.D1.visit(this, null);
@@ -708,4 +718,5 @@ public class WriterVisitor implements Visitor {
     else
       return operator;
   }
+
 }

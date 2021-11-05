@@ -61,6 +61,7 @@ import Triangle.AbstractSyntaxTrees.RepeatForRangeWhile;
 import Triangle.AbstractSyntaxTrees.RepeatIn;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
+import Triangle.AbstractSyntaxTrees.SequentialProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SimpleVname;
 import Triangle.AbstractSyntaxTrees.SingleActualParameterSequence;
@@ -357,6 +358,14 @@ public class TableVisitor implements Visitor {
     ast.PFD.visit(this, null);
 
     return(null);
+  }
+
+  /* Para tomar en cuenta las declaraciones secuenciales de procedimientos y funciones mutuamente recursivas (Austin) */
+  @Override
+  public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
+    ast.D1.visit(this, null);
+    ast.D2.visit(this, null);
+    return null;
   }
 
   /* Para tomar en cuenta las declaraciones de procedimientos y funciones mutuamente recursivas (Austin) */

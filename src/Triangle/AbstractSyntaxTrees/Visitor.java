@@ -59,9 +59,11 @@ public interface Visitor {
   /* Se agregan nuevos métodos visitantes para las nuevas declaraciones (Austin) */
   public abstract Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o);
   public abstract Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o);
+  public abstract Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o);
   public abstract Object visitLocalDeclaration(LocalDeclaration ast, Object o);
   public abstract Object visitRangeVarDecl(RangeVarDecl ast, Object o);
   public abstract Object visitInVarDecl(InVarDecl ast, Object o);
+  
 
   // Array Aggregates
   public abstract Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object o);
@@ -117,6 +119,7 @@ public interface Visitor {
 
   // Programs
   public abstract Object visitProgram(Program ast, Object o);
+
 
 
 }
