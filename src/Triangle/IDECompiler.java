@@ -6,6 +6,8 @@
 package Triangle;
 
 import Triangle.CodeGenerator.Frame;
+import Triangle.ContextualAnalyzer.Checker;
+
 import java.awt.event.ActionListener;
 import Triangle.SyntacticAnalyzer.SourceFile;
 import Triangle.SyntacticAnalyzer.TokenWriter;

@@ -369,7 +369,7 @@ public class Parser {
                 Command cAST = parseCommand();
                 accept(Token.END);
                 finish(commandPos);
-                commandAST = new RepeatForRange(rvdAST, eAST1, cAST, commandPos);
+                commandAST = new RepeatForRange(rvdAST, eAST2, cAST, commandPos);//Aca habia un bug se pasaba la expresion 1 dos veces al AST (Fernando)
               } else {
                 syntacticError("\"%\" cannot start a Repeat-For-Range command", currentToken.spelling);
               }

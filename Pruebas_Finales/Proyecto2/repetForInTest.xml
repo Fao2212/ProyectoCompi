@@ -1,0 +1,37 @@
+<?xml version="1.0" standalone="yes"?>
+<Program>
+<RepeatIn>
+<InVarDecl>
+<Identifier value="x"/>
+<ArrayExpression>
+<MultipleArrayAggregate>
+<IntegerExpression>
+<IntegerLiteral value="2"/>
+</IntegerExpression>
+<MultipleArrayAggregate>
+<IntegerExpression>
+<IntegerLiteral value="3"/>
+</IntegerExpression>
+<SingleArrayAggregate>
+<IntegerExpression>
+<IntegerLiteral value="4"/>
+</IntegerExpression>
+</SingleArrayAggregate>
+</MultipleArrayAggregate>
+</MultipleArrayAggregate>
+</ArrayExpression>
+</InVarDecl>
+<CallCommand>
+<Identifier value="putint"/>
+<SingleActualParameterSequence>
+<ConstActualParameter>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="x"/>
+</SimpleVname>
+</VnameExpression>
+</ConstActualParameter>
+</SingleActualParameterSequence>
+</CallCommand>
+</RepeatIn>
+</Program>

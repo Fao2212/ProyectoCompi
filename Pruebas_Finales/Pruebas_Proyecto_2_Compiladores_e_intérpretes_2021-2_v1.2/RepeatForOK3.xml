@@ -1,0 +1,26 @@
+<?xml version="1.0" standalone="yes"?>
+<Program>
+<RepeatForRange>
+<RangeVarDecl>
+<Identifier value="i"/>
+<IntegerExpression>
+<IntegerLiteral value="1"/>
+</IntegerExpression>
+</RangeVarDecl>
+<IntegerExpression>
+<IntegerLiteral value="10"/>
+</IntegerExpression>
+<CallCommand>
+<Identifier value="putint"/>
+<SingleActualParameterSequence>
+<ConstActualParameter>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="i"/>
+</SimpleVname>
+</VnameExpression>
+</ConstActualParameter>
+</SingleActualParameterSequence>
+</CallCommand>
+</RepeatForRange>
+</Program>

@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes"?>
+<Program>
+<LetCommand>
+<VarDeclaration>
+<Identifier value="k"/>
+<SimpleTypeDenoter>
+<Identifier value="Boolean"/>
+</SimpleTypeDenoter>
+</VarDeclaration>
+<RepeatForRange>
+<RangeVarDecl>
+<Identifier value="i"/>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="k"/>
+</SimpleVname>
+</VnameExpression>
+</RangeVarDecl>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="k"/>
+</SimpleVname>
+</VnameExpression>
+<CallCommand>
+<Identifier value="putint"/>
+<SingleActualParameterSequence>
+<ConstActualParameter>
+<IntegerExpression>
+<IntegerLiteral value="1"/>
+</IntegerExpression>
+</ConstActualParameter>
+</SingleActualParameterSequence>
+</CallCommand>
+</RepeatForRange>
+</LetCommand>
+</Program>

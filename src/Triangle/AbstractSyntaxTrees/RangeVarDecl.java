@@ -15,4 +15,5 @@ public class RangeVarDecl extends Declaration {
     
     public Identifier I;
     public Expression E;
+    public TypeDenoter T;
 }
