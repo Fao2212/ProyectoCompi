@@ -790,7 +790,13 @@ public final class Checker implements Visitor {
   // has not been declared.
 
   private void reportUndeclared (Terminal leaf) {
-    reporter.reportError("\"%\" is not declared", leaf.spelling, leaf.position);
+    // En caso de que el identificador sea privado (Austin)
+    if (idTable.isPrivateIdentifier(leaf)) {
+      reporter.reportError("\"%\" is not visible here, it is part of a local declaration.", leaf.spelling, leaf.position);
+    }
+    else {
+      reporter.reportError("\"%\" is not declared", leaf.spelling, leaf.position);
+    }
   }
 
 

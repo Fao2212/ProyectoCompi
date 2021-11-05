@@ -14,24 +14,30 @@
 
 package Triangle.ContextualAnalyzer;
 
+import java.util.LinkedList;
 import java.util.Stack;
 
 import Triangle.AbstractSyntaxTrees.Declaration;
-import javafx.util.Pair;
+import Triangle.AbstractSyntaxTrees.Terminal;
 
 public final class IdentificationTable {
 
   private int level;
   private IdEntry latest;
-  private LocalIdentificationTable localIdTable;
   private Stack<IdEntry> privateScopeMarkers;
   private Stack<IdEntry> publicScopeMarkers;
+  private LinkedList<String> privateIdentifiers;
+  private boolean privateScopeIsOpen;
+  private int nestedLocalDeclarations;
 
   public IdentificationTable () {
     level = 0;
     latest = null;
     privateScopeMarkers = new Stack<IdEntry>();
     publicScopeMarkers = new Stack<IdEntry>();
+    privateIdentifiers = new LinkedList<String>();
+    privateScopeIsOpen = false;
+    nestedLocalDeclarations = -1;
   }
 
   // Opens a new level in the identification table, 1 higher than the
@@ -64,12 +70,13 @@ public final class IdentificationTable {
   }
 
   public void beginLocal() {
-    // System.out.println("Begin local");
+    privateScopeIsOpen = true;
+    nestedLocalDeclarations++;
     privateScopeMarkers.add(this.latest);
   }
 
   public void beginIn() {
-    // System.out.println("Begin In");
+    privateScopeIsOpen = false;
     publicScopeMarkers.add(this.latest);
   }
 
@@ -82,6 +89,7 @@ public final class IdentificationTable {
     }
     // Se reconecta con el marcador del alcance privado anterior
     entry.previous = privateScopeMarkers.pop();
+    nestedLocalDeclarations--;
   }
 
   // Closes the topmost level in the identification table, discarding
@@ -126,8 +134,12 @@ public final class IdentificationTable {
     // Add new entry ...
     entry = new IdEntry(id, attr, this.level, this.latest);
 
+    // Si la declaración es local se guarda su identificador 
+    // por si se necesita en un mensaje de error. (Austin)
+    if (privateScopeIsOpen || nestedLocalDeclarations > 0)
+      privateIdentifiers.add(id);
+
     this.latest = entry;
-    // printIdTable();
   }
 
   // Finds an entry for the given identifier in the identification table,
@@ -157,4 +169,13 @@ public final class IdentificationTable {
     return attr;
   }
 
+
+  // Se verifica si el identificador pasado por parámetro
+  // fue declarado en un bloque de privado de una declaración
+  // local revisando la lista de identificadores privados 
+  // procesados hasta el momento. (Austin)
+
+  public boolean isPrivateIdentifier(Terminal terminal) {
+    return privateIdentifiers.contains(terminal.spelling);
+  }
 }
