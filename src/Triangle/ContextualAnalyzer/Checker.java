@@ -1153,7 +1153,6 @@ public final class Checker implements Visitor {
     idTable.beginIn();
     ast.D2.visit(this, o);
     idTable.endLocal(); 
-    idTable.printIdTable();
     return null;
   }
 

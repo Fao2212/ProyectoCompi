@@ -46,28 +46,6 @@ public final class IdentificationTable {
   public void openScope () {
     level ++;
   }
-  
-  public void printStack(Stack<IdEntry> stack) {
-    for (IdEntry idEntry : stack) {
-      System.out.println("---");
-      if (idEntry == null)
-        System.out.println("null");
-      else
-        System.out.println("|" + idEntry.id + "|");
-    }
-    System.out.println("---");
-  }
-
-  public void printIdTable() {
-    IdEntry walker = latest;
-    System.out.println("*******************");
-    while (walker.level != 0){
-      System.out.println("---");
-      System.out.println("|" + walker.id + "|");
-      walker = walker.previous;
-    }
-    System.out.println("---");
-  }
 
   public void beginLocal() {
     privateScopeIsOpen = true;
