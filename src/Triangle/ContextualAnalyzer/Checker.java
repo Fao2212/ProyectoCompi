@@ -419,7 +419,10 @@ public final class Checker implements Visitor {
   public Object visitConstFormalParameter(ConstFormalParameter ast, Object o) {
     ast.T = (TypeDenoter) ast.T.visit(this, null);
     idTable.enter(ast.I.spelling, ast);
-    if (ast.duplicated)
+    // Si el objeto 'o' no es nulo evita el reporte de errores, 
+    // esto es para no duplicar el mensaje de error de parametros 
+    // duplicados en funciones y procedimientos mutuamente recursivos. (Austin)
+    if (o == null && ast.duplicated) 
       reporter.reportError ("duplicated formal parameter \"%\"",
                             ast.I.spelling, ast.position);
     return null;
@@ -462,13 +465,13 @@ public final class Checker implements Visitor {
   }
 
   public Object visitMultipleFormalParameterSequence(MultipleFormalParameterSequence ast, Object o) {
-    ast.FP.visit(this, null);
-    ast.FPS.visit(this, null);
+    ast.FP.visit(this, o); // Se pasa object para evitar mensaje de error duplicado por por parametros duplicados en funcs y procs recursivos (Austin)
+    ast.FPS.visit(this, o); // Se pasa object para evitar mensaje de error duplicado por por parametros duplicados en funcs y procs recursivos (Austin)
     return null;
   }
 
   public Object visitSingleFormalParameterSequence(SingleFormalParameterSequence ast, Object o) {
-    ast.FP.visit(this, null);
+    ast.FP.visit(this, o); // Se pasa object para evitar mensaje de error duplicado por por parametros duplicados en funcs y procs recursivos (Austin)
     return null;
   }
 
@@ -1090,20 +1093,21 @@ public final class Checker implements Visitor {
     La segunda pasada es para  */
 
   public Object visitRecursiveFuncDeclaration1(FuncDeclaration ast, Object o) {
+    ast.T = (TypeDenoter) ast.T.visit(this, null);
     idTable.enter (ast.I.spelling, ast); // permite la recursividad
     if (ast.duplicated)
       reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position);
     idTable.openScope();
-    ast.FPS.visit(this, null);
+    ast.FPS.visit(this, "No error message"); // Manda el string para evitar el mensaje de error la primera pasada
     idTable.closeScope();
     return null;
   }
   
   public Object visitRecursiveFuncDeclaration2(FuncDeclaration ast, Object o) {
-    ast.T = (TypeDenoter) ast.T.visit(this, null);
     idTable.openScope();
     ast.FPS.visit(this, null);
-    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null); idTable.closeScope();
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null); 
+    idTable.closeScope();
     if (! ast.T.equals(eType))
     reporter.reportError ("body of function \"%\" has wrong type", ast.I.spelling, ast.E.position);
               return null;
@@ -1114,7 +1118,7 @@ public final class Checker implements Visitor {
     if (ast.duplicated)
       reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position);
     idTable.openScope();
-    ast.FPS.visit(this, null);
+    ast.FPS.visit(this, "No error message");  // Manda el string para evitar el mensaje de error la primera pasada
     idTable.closeScope();
     return null;
   }
@@ -1127,16 +1131,86 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  // Primera pasada
+  public void visitProfFuncDeclarationFirstPass(SequentialProcFuncDeclaration ast, Object o) {
+    if (ast.D1.getClass() == SequentialProcFuncDeclaration.class) {
+      visitProfFuncDeclarationFirstPass((SequentialProcFuncDeclaration) ast.D1, o);
+    }
+    if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
+      visitProfFuncDeclarationFirstPass((SequentialProcFuncDeclaration) ast.D2, o);
+    }
+    // Primera pasada
+    determineProcFuncForFirstPass(ast.D1, o);
+    determineProcFuncForFirstPass(ast.D2, o);
+  }
+
+  // Segunda pasada
+  public void visitProfFuncDeclarationSecondPass(SequentialProcFuncDeclaration ast, Object o) {
+    if (ast.D1.getClass() == SequentialProcFuncDeclaration.class) {
+      visitProfFuncDeclarationSecondPass((SequentialProcFuncDeclaration) ast.D1, o);
+    }
+    if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
+      visitProfFuncDeclarationSecondPass((SequentialProcFuncDeclaration) ast.D2, o);
+    }
+    // Primera pasada
+    determineProcFunForSecondPass(ast.D1, o);
+    determineProcFunForSecondPass(ast.D2, o);
+  }
+
+  // Determina si hay que hacer la primera pasadad sobre una funcion o un procedimiento
+  public void determineProcFuncForFirstPass(Declaration ast, Object o) {
+    if (ast.getClass() == FuncDeclaration.class) {
+      visitRecursiveFuncDeclaration1((FuncDeclaration) ast, o);
+    } else if (ast.getClass() == ProcDeclaration.class){
+      visitRecursiveProcDeclaration1((ProcDeclaration) ast, o);
+    }
+  }
+
+  // Determina si hay que hacer la primera pasadad sobre una funcion o un procedimiento
+  public void determineProcFunForSecondPass(Declaration ast, Object o) {
+    if (ast.getClass() == FuncDeclaration.class) {
+      visitRecursiveFuncDeclaration2((FuncDeclaration) ast, o);
+    } else if (ast.getClass() == ProcDeclaration.class){
+      visitRecursiveProcDeclaration2((ProcDeclaration) ast, o);
+    }
+    // En caso de que reciba una funcion proc-func secuencial, la ignora.
+  }
+
     @Override
   public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
-    // Se llaman los métodos para las 2 pasadas según sea el tipo de AST (Austin)
-    if (ast.D1.getClass() == FuncDeclaration.class) {
-      visitRecursiveFuncDeclaration1((FuncDeclaration) ast.D1, o);
-      visitRecursiveFuncDeclaration2((FuncDeclaration) ast.D1, o);
-    } else if (ast.D2.getClass() == ProcDeclaration.class) {
-      visitRecursiveProcDeclaration1((ProcDeclaration) ast.D2, o);
-      visitRecursiveProcDeclaration2((ProcDeclaration) ast.D2, o);
-    }
+    // Para manejar múltiples anidamientos
+    // if (ast.D1.getClass() == SequentialProcFuncDeclaration.class) {
+    //   visitSequentialProcFuncDeclaration((SequentialProcFuncDeclaration) ast.D1, o);
+    // }
+    // else if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
+    //   visitSequentialProcFuncDeclaration((SequentialProcFuncDeclaration) ast.D2, o);
+    // }
+    // else {
+    //   // Se llaman los métodos para las 2 pasadas según sea el tipo de AST (Austin)
+      // Primera pasada
+      visitProfFuncDeclarationFirstPass(ast, o);
+      // Segunda pasada
+      visitProfFuncDeclarationSecondPass(ast, o);
+    // }
+    
+    // if (ast.D1.getClass() == FuncDeclaration.class) {
+    //   // Primera pasada
+    //   visitRecursiveFuncDeclaration1((FuncDeclaration) ast.D1, o);
+    //   if (ast.D2.getClass() == FuncDeclaration.class)
+    //     visitRecursiveFuncDeclaration1((FuncDeclaration) ast.D2, o);
+    //   else
+    //     visitRecursiveProcDeclaration1((ProcDeclaration) ast.D2, o);
+    //   // Segunda pasada
+    //   visitRecursiveFuncDeclaration2((FuncDeclaration) ast.D1, o);
+    //   visitRecursiveFuncDeclaration2((FuncDeclaration) ast.D2, o);
+    // } else if (ast.D2.getClass() == ProcDeclaration.class) {
+    //   // Primera pasada
+    //   visitRecursiveProcDeclaration1((ProcDeclaration) ast.D1, o);
+    //   visitRecursiveProcDeclaration1((ProcDeclaration) ast.D2, o);
+    //   // Segunda pasada
+    //   visitRecursiveProcDeclaration2((ProcDeclaration) ast.D1, o);
+    //   visitRecursiveProcDeclaration2((ProcDeclaration) ast.D2, o);
+    // }
     return null;
   }
 
