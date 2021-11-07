@@ -1,0 +1,18 @@
+<?xml version="1.0" standalone="yes"?>
+<Program>
+<RepeatWhileCommand>
+<CharacterExpression>
+<CharacterLiteral value="'0'"/>
+</CharacterExpression>
+<CallCommand>
+<Identifier value="putint"/>
+<SingleActualParameterSequence>
+<ConstActualParameter>
+<IntegerExpression>
+<IntegerLiteral value="1"/>
+</IntegerExpression>
+</ConstActualParameter>
+</SingleActualParameterSequence>
+</CallCommand>
+</RepeatWhileCommand>
+</Program>

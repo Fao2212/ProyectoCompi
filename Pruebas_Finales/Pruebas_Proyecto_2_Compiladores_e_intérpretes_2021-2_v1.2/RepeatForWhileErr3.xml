@@ -1,13 +1,13 @@
 <?xml version="1.0" standalone="yes"?>
 <Program>
 <LetCommand>
-<VarInitializedDeclaration>
+<VarDeclaration>
 <Identifier value="k"/>
-<IntegerExpression>
-<IntegerLiteral value="1"/>
-</IntegerExpression>
-</VarInitializedDeclaration>
-<RepeatForRange>
+<SimpleTypeDenoter>
+<Identifier value="Boolean"/>
+</SimpleTypeDenoter>
+</VarDeclaration>
+<RepeatForRangeWhile>
 <RangeVarDecl>
 <Identifier value="i"/>
 <IntegerExpression>
@@ -19,6 +19,17 @@
 <Identifier value="k"/>
 </SimpleVname>
 </VnameExpression>
+<BinaryExpression>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="i"/>
+</SimpleVname>
+</VnameExpression>
+<Operator value="&lt;"/>
+<IntegerExpression>
+<IntegerLiteral value="5"/>
+</IntegerExpression>
+</BinaryExpression>
 <SequentialCommand>
 <AssignCommand>
 <SimpleVname>
@@ -47,6 +58,6 @@
 </SingleActualParameterSequence>
 </CallCommand>
 </SequentialCommand>
-</RepeatForRange>
+</RepeatForRangeWhile>
 </LetCommand>
 </Program>

@@ -1,41 +1,35 @@
 <?xml version="1.0" standalone="yes"?>
 <Program>
 <LetCommand>
-<VarInitializedDeclaration>
+<VarDeclaration>
 <Identifier value="k"/>
-<IntegerExpression>
-<IntegerLiteral value="1"/>
-</IntegerExpression>
-</VarInitializedDeclaration>
-<RepeatForRange>
+<SimpleTypeDenoter>
+<Identifier value="Boolean"/>
+</SimpleTypeDenoter>
+</VarDeclaration>
+<RepeatForRangeWhile>
 <RangeVarDecl>
 <Identifier value="i"/>
-<IntegerExpression>
-<IntegerLiteral value="1"/>
-</IntegerExpression>
-</RangeVarDecl>
 <VnameExpression>
 <SimpleVname>
 <Identifier value="k"/>
 </SimpleVname>
 </VnameExpression>
-<SequentialCommand>
-<AssignCommand>
-<SimpleVname>
-<Identifier value="k"/>
-</SimpleVname>
+</RangeVarDecl>
+<IntegerExpression>
+<IntegerLiteral value="10"/>
+</IntegerExpression>
 <BinaryExpression>
 <VnameExpression>
 <SimpleVname>
-<Identifier value="k"/>
+<Identifier value="i"/>
 </SimpleVname>
 </VnameExpression>
-<Operator value="+"/>
+<Operator value="&lt;"/>
 <IntegerExpression>
-<IntegerLiteral value="1"/>
+<IntegerLiteral value="5"/>
 </IntegerExpression>
 </BinaryExpression>
-</AssignCommand>
 <CallCommand>
 <Identifier value="putint"/>
 <SingleActualParameterSequence>
@@ -46,7 +40,6 @@
 </ConstActualParameter>
 </SingleActualParameterSequence>
 </CallCommand>
-</SequentialCommand>
-</RepeatForRange>
+</RepeatForRangeWhile>
 </LetCommand>
 </Program>
