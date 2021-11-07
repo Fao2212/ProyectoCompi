@@ -4,10 +4,10 @@
 <VarInitializedDeclaration>
 <Identifier value="k"/>
 <IntegerExpression>
-<IntegerLiteral value="1"/>
+<IntegerLiteral value="10"/>
 </IntegerExpression>
 </VarInitializedDeclaration>
-<RepeatForRange>
+<RepeatForRangeUntil>
 <RangeVarDecl>
 <Identifier value="i"/>
 <IntegerExpression>
@@ -19,6 +19,17 @@
 <Identifier value="k"/>
 </SimpleVname>
 </VnameExpression>
+<BinaryExpression>
+<VnameExpression>
+<SimpleVname>
+<Identifier value="i"/>
+</SimpleVname>
+</VnameExpression>
+<Operator value=">"/>
+<IntegerExpression>
+<IntegerLiteral value="3"/>
+</IntegerExpression>
+</BinaryExpression>
 <SequentialCommand>
 <AssignCommand>
 <SimpleVname>
@@ -47,6 +58,6 @@
 </SingleActualParameterSequence>
 </CallCommand>
 </SequentialCommand>
-</RepeatForRange>
+</RepeatForRangeUntil>
 </LetCommand>
 </Program>

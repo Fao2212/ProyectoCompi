@@ -1042,13 +1042,12 @@ public final class Checker implements Visitor {
     if(! e1Type.equals(StdEnvironment.integerType)){
       reporter.reportError("Integer expression expected here", "", ast.E1.position);
     }
-    //ast.RWC.visit(this,null)//visitRepeatWhileCommand(new WhileCommand(ast.E2, ast.C, null), null);//Me hubiera gustado hacer un visit de un WhileCommand
+    idTable.openScope();
+    idTable.enter(ast.RVD.I.spelling, ast.RVD);
+    //Se agrega la expresion 2 dentro del scope para que pueda evaluarse en el while o en el until
     TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
     if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
       reporter.reportError("Boolean expression expected here", "", ast.E2.position);
-
-    idTable.openScope();
-    idTable.enter(ast.RVD.I.spelling, ast.RVD);
     ast.C.visit(this, null);//Se visita el comando
     idTable.closeScope();//Tengo que cerrar el scope para las expresiones
     return null;
@@ -1062,12 +1061,12 @@ public final class Checker implements Visitor {
     if(! e1Type.equals(StdEnvironment.integerType)){
       reporter.reportError("Integer expression expected here", "", ast.E1.position);
     }
-    //ast.RWC.visit(this,null)//visitRepeatUntilCommand(new UntilCommand(ast.E2, ast.C, null), null);//Me hubiera gustado hacer un visit de un UntilCommand
+    idTable.openScope();
+    idTable.enter(ast.RVD.I.spelling,ast.RVD);
+    //Se agrega la expresion 2 dentro del scope para que pueda evaluarse en el while o en el until
     TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
     if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
       reporter.reportError("Boolean expression expected here", "", ast.E2.position);
-    idTable.openScope();
-    idTable.enter(ast.RVD.I.spelling,ast.RVD);
     ast.C.visit(this, null);//Se visita el comando
     idTable.closeScope();
     return null;
