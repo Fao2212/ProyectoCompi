@@ -454,7 +454,10 @@ public final class Checker implements Visitor {
   public Object visitVarFormalParameter(VarFormalParameter ast, Object o) {
     ast.T = (TypeDenoter) ast.T.visit(this, null);
     idTable.enter (ast.I.spelling, ast);
-    if (ast.duplicated)
+    // Si el objeto 'o' no es nulo evita el reporte de errores, 
+    // esto es para no duplicar el mensaje de error de parametros 
+    // duplicados en funciones y procedimientos mutuamente recursivos. (Austin)
+    if (o == null && ast.duplicated)
       reporter.reportError ("duplicated formal parameter \"%\"",
                             ast.I.spelling, ast.position);
     return null;
@@ -734,7 +737,8 @@ public final class Checker implements Visitor {
       } else if (binding instanceof VarFormalParameter) {
         ast.type = ((VarFormalParameter) binding).T;
         ast.variable = true;
-      } else if (binding instanceof VarInitializedDeclaration) { // Se agrega la opción de reconocer variables inicialidadas (Austin)
+        // Se agrega la opción de reconocer variables inicialidadas (Austin)
+      } else if (binding instanceof VarInitializedDeclaration) { 
         ast.type = ((VarInitializedDeclaration) binding).E.type;
         ast.variable = true;
       }
@@ -978,6 +982,8 @@ public final class Checker implements Visitor {
   }
 
  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 2 (Austin) */
+
+ /* Método para procesar contextualmente las declaraciones de variables inicializadas */
   @Override
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
     TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
@@ -1131,28 +1137,28 @@ public final class Checker implements Visitor {
   }
 
   // Primera pasada
-  public void visitProfFuncDeclarationFirstPass(SequentialProcFuncDeclaration ast, Object o) {
+  public void visitProcFuncDeclarationFirstPass(SequentialProcFuncDeclaration ast, Object o) {
     if (ast.D1.getClass() == SequentialProcFuncDeclaration.class) {
-      visitProfFuncDeclarationFirstPass((SequentialProcFuncDeclaration) ast.D1, o);
+      visitProcFuncDeclarationFirstPass((SequentialProcFuncDeclaration) ast.D1, o);
     }
-    if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
-      visitProfFuncDeclarationFirstPass((SequentialProcFuncDeclaration) ast.D2, o);
-    }
-    // Primera pasada
     determineProcFuncForFirstPass(ast.D1, o);
+
+    if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
+      visitProcFuncDeclarationFirstPass((SequentialProcFuncDeclaration) ast.D2, o);
+    }
     determineProcFuncForFirstPass(ast.D2, o);
   }
 
   // Segunda pasada
-  public void visitProfFuncDeclarationSecondPass(SequentialProcFuncDeclaration ast, Object o) {
+  public void visitProcFuncDeclarationSecondPass(SequentialProcFuncDeclaration ast, Object o) {
     if (ast.D1.getClass() == SequentialProcFuncDeclaration.class) {
-      visitProfFuncDeclarationSecondPass((SequentialProcFuncDeclaration) ast.D1, o);
+      visitProcFuncDeclarationSecondPass((SequentialProcFuncDeclaration) ast.D1, o);
     }
-    if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
-      visitProfFuncDeclarationSecondPass((SequentialProcFuncDeclaration) ast.D2, o);
-    }
-    // Primera pasada
     determineProcFunForSecondPass(ast.D1, o);
+
+    if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
+      visitProcFuncDeclarationSecondPass((SequentialProcFuncDeclaration) ast.D2, o);
+    }
     determineProcFunForSecondPass(ast.D2, o);
   }
 
@@ -1177,39 +1183,11 @@ public final class Checker implements Visitor {
 
     @Override
   public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
-    // Para manejar múltiples anidamientos
-    // if (ast.D1.getClass() == SequentialProcFuncDeclaration.class) {
-    //   visitSequentialProcFuncDeclaration((SequentialProcFuncDeclaration) ast.D1, o);
-    // }
-    // else if (ast.D2.getClass() == SequentialProcFuncDeclaration.class) {
-    //   visitSequentialProcFuncDeclaration((SequentialProcFuncDeclaration) ast.D2, o);
-    // }
-    // else {
-    //   // Se llaman los métodos para las 2 pasadas según sea el tipo de AST (Austin)
+      // Se llaman los métodos para las 2 pasadas según sea el tipo de AST (Austin)
       // Primera pasada
-      visitProfFuncDeclarationFirstPass(ast, o);
+      visitProcFuncDeclarationFirstPass(ast, o);
       // Segunda pasada
-      visitProfFuncDeclarationSecondPass(ast, o);
-    // }
-    
-    // if (ast.D1.getClass() == FuncDeclaration.class) {
-    //   // Primera pasada
-    //   visitRecursiveFuncDeclaration1((FuncDeclaration) ast.D1, o);
-    //   if (ast.D2.getClass() == FuncDeclaration.class)
-    //     visitRecursiveFuncDeclaration1((FuncDeclaration) ast.D2, o);
-    //   else
-    //     visitRecursiveProcDeclaration1((ProcDeclaration) ast.D2, o);
-    //   // Segunda pasada
-    //   visitRecursiveFuncDeclaration2((FuncDeclaration) ast.D1, o);
-    //   visitRecursiveFuncDeclaration2((FuncDeclaration) ast.D2, o);
-    // } else if (ast.D2.getClass() == ProcDeclaration.class) {
-    //   // Primera pasada
-    //   visitRecursiveProcDeclaration1((ProcDeclaration) ast.D1, o);
-    //   visitRecursiveProcDeclaration1((ProcDeclaration) ast.D2, o);
-    //   // Segunda pasada
-    //   visitRecursiveProcDeclaration2((ProcDeclaration) ast.D1, o);
-    //   visitRecursiveProcDeclaration2((ProcDeclaration) ast.D2, o);
-    // }
+      visitProcFuncDeclarationSecondPass(ast, o);
     return null;
   }
 
