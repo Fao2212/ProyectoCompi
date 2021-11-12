@@ -24,6 +24,7 @@ public final class IdentificationTable {
 
   private int level;
   private IdEntry latest;
+  // Nuevas variables para el procesamiento de declaraciones locales (Austin)
   private Stack<IdEntry> privateScopeMarkers;
   private Stack<IdEntry> publicScopeMarkers;
   private LinkedList<String> privateIdentifiers;
@@ -47,25 +48,29 @@ public final class IdentificationTable {
     level ++;
   }
 
+  /* Se inicializa el marco privado de la declaracion local (Austin)*/
   public void beginLocal() {
     privateScopeIsOpen = true;
     nestedLocalDeclarations++;
     privateScopeMarkers.add(this.latest);
   }
 
+  /* Se inicializa el marco público de la declaracion local (Austin)*/
   public void beginIn() {
     privateScopeIsOpen = false;
     publicScopeMarkers.add(this.latest);
   }
 
+  /* Se finaliza la declaración local y se extraen las declaraciones
+     locales de la tabla de identificacion. (Austin)*/
   public void endLocal() {
-    // System.out.println("End local");
     IdEntry publicScopeMarker = publicScopeMarkers.pop();
     IdEntry entry = this.latest;
     while (!entry.previous.equals(publicScopeMarker)) {
       entry = entry.previous;
     }
-    // Se reconecta con el marcador del alcance privado anterior
+    // Se reconecta con el marcador del inicio del alcance privado anterior
+    // que resulta ser la última declaración antes del bloque local.
     entry.previous = privateScopeMarkers.pop();
     nestedLocalDeclarations--;
   }

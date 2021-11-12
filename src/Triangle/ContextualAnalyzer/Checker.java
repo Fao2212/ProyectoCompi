@@ -468,13 +468,17 @@ public final class Checker implements Visitor {
   }
 
   public Object visitMultipleFormalParameterSequence(MultipleFormalParameterSequence ast, Object o) {
-    ast.FP.visit(this, o); // Se pasa object para evitar mensaje de error duplicado por por parametros duplicados en funcs y procs recursivos (Austin)
-    ast.FPS.visit(this, o); // Se pasa object para evitar mensaje de error duplicado por por parametros duplicados en funcs y procs recursivos (Austin)
+    // Se pasa object para evitar mensaje de error duplicado por por 
+    // parametros duplicados en funcs y procs recursivos (Austin)
+    ast.FP.visit(this, o); 
+    ast.FPS.visit(this, o);
     return null;
   }
 
   public Object visitSingleFormalParameterSequence(SingleFormalParameterSequence ast, Object o) {
-    ast.FP.visit(this, o); // Se pasa object para evitar mensaje de error duplicado por por parametros duplicados en funcs y procs recursivos (Austin)
+    // Se pasa object para evitar mensaje de error duplicado por por 
+    // parametros duplicados en funcs y procs recursivos (Austin)
+    ast.FP.visit(this, o); 
     return null;
   }
 
@@ -811,7 +815,8 @@ public final class Checker implements Visitor {
   private void reportUndeclared (Terminal leaf) {
     // En caso de que el identificador sea privado (Austin)
     if (idTable.isPrivateIdentifier(leaf)) {
-      reporter.reportError("\"%\" is not visible here, it is part of a local declaration.", leaf.spelling, leaf.position);
+      reporter.reportError("\"%\" is not visible here, it is part of a local declaration.", 
+                            leaf.spelling, leaf.position);
     }
     else {
       reporter.reportError("\"%\" is not declared", leaf.spelling, leaf.position);
@@ -1095,19 +1100,22 @@ public final class Checker implements Visitor {
   /* Funciones especiales para manejar recursividad en dos pasadas
     La primera pasada es para ingresar los identificadores y atributos
     de las funciones y procedimientos a la tabla de identificación
-    La segunda pasada es para  */
+    La segunda pasada es para visitar el cuerpo de las declaraciones (Austin)*/
 
+  // Ejecuta la primera pasada sobre una función recursiva
   public Object visitRecursiveFuncDeclaration1(FuncDeclaration ast, Object o) {
     ast.T = (TypeDenoter) ast.T.visit(this, null);
     idTable.enter (ast.I.spelling, ast); // permite la recursividad
     if (ast.duplicated)
       reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position);
     idTable.openScope();
-    ast.FPS.visit(this, "No error message"); // Manda el string para evitar el mensaje de error la primera pasada
+    // Manda el string para evitar el mensaje de error la primera pasada
+    ast.FPS.visit(this, "No error message"); 
     idTable.closeScope();
     return null;
   }
   
+  // Ejecuta la segunda pasada sobre una función recursiva
   public Object visitRecursiveFuncDeclaration2(FuncDeclaration ast, Object o) {
     idTable.openScope();
     ast.FPS.visit(this, null);
@@ -1115,19 +1123,22 @@ public final class Checker implements Visitor {
     idTable.closeScope();
     if (! ast.T.equals(eType))
     reporter.reportError ("body of function \"%\" has wrong type", ast.I.spelling, ast.E.position);
-              return null;
+    return null;
   }
 
+  // Ejecuta la primera pasada sobre un procedimiento recursivo
   public Object visitRecursiveProcDeclaration1(ProcDeclaration ast, Object o) {
     idTable.enter (ast.I.spelling, ast); // permite la recursividad
     if (ast.duplicated)
       reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position);
     idTable.openScope();
-    ast.FPS.visit(this, "No error message");  // Manda el string para evitar el mensaje de error la primera pasada
+    // Manda el string para evitar el mensaje de error la primera pasada
+    ast.FPS.visit(this, "No error message");  
     idTable.closeScope();
     return null;
   }
 
+  // Ejecuta la segunda pasada sobre un procedimiento recursivo
   public Object visitRecursiveProcDeclaration2(ProcDeclaration ast, Object o) {
     idTable.openScope();
     ast.FPS.visit(this, null);
@@ -1171,19 +1182,18 @@ public final class Checker implements Visitor {
     }
   }
 
-  // Determina si hay que hacer la primera pasadad sobre una funcion o un procedimiento
+  // Determina si hay que hacer la segunda pasada sobre una funcion o un procedimiento
   public void determineProcFunForSecondPass(Declaration ast, Object o) {
     if (ast.getClass() == FuncDeclaration.class) {
       visitRecursiveFuncDeclaration2((FuncDeclaration) ast, o);
     } else if (ast.getClass() == ProcDeclaration.class){
       visitRecursiveProcDeclaration2((ProcDeclaration) ast, o);
     }
-    // En caso de que reciba una funcion proc-func secuencial, la ignora.
   }
 
-    @Override
-  public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
-      // Se llaman los métodos para las 2 pasadas según sea el tipo de AST (Austin)
+  // Se llaman los métodos para las 2 pasadas sobre AST (Austin)
+  @Override
+  public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {   
       // Primera pasada
       visitProcFuncDeclarationFirstPass(ast, o);
       // Segunda pasada
@@ -1191,12 +1201,15 @@ public final class Checker implements Visitor {
     return null;
   }
 
+  /* Método visitante para la declaración del bloque declaraciones de funciones y
+     procedimientos mutuamente recursivos (Austin) */
   @Override
   public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
     ast.PFD.visit(this, o);
     return null;
   }
 
+  /* Método visitante para las declaraciones locales (Austin) */
   @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
     idTable.beginLocal();

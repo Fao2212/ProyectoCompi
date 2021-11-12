@@ -894,7 +894,7 @@ public class Parser {
         Declaration d2AST = parseProcFuncDeclaration();
         declarationAST = new SequentialProcFuncDeclaration(declarationAST, d2AST, declarationPos);
       } else {
-        syntacticError("\"%\" the symbol | (Pipe) was expected here", currentToken.spelling);
+        syntacticError("The symbol | (Pipe) was expected before the next \"%\" in the position", currentToken.spelling);
       }
       
     } while (currentToken.kind == Token.PIPE);
