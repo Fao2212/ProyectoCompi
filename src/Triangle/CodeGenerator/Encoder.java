@@ -1079,12 +1079,17 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  /* Método que recorre los bloques privado y público de una declaración local
+     para asignar espacio y procesar las declaraciones allí contenidas (Austin) */
   @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
+    // elaborate [[local D1 in D2 end]]
     Frame frame = (Frame) o;
     int privateDeclSize, publicDeclSize;
+    // elaborate D1
     privateDeclSize = ((Integer) ast.D1.visit(this, frame)).intValue();
     Frame frame1 = new Frame (frame, privateDeclSize);
+    // elaborate D2
     publicDeclSize = ((Integer) ast.D2.visit(this, frame1)).intValue();
     return new Integer(privateDeclSize + publicDeclSize);
   }
