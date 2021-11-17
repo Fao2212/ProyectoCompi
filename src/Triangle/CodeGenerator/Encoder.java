@@ -1010,8 +1010,8 @@ public final class Encoder implements Visitor {
 
   /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 3 (Austin) */
 
-  // Método que genera código para reservar espacio en la pila para una variable inicializada 
-  // una vez que haya sido evaluada su expresión (Austin)
+  /* Método que genera código para reservar espacio en la pila para una variable inicializada 
+     una vez que haya sido evaluada su expresión (Austin) */
   @Override
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
 
