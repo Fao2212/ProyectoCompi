@@ -1081,8 +1081,12 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
+    Frame frame = (Frame) o;
+    int privateDeclSize, publicDeclSize;
+    privateDeclSize = ((Integer) ast.D1.visit(this, frame)).intValue();
+    Frame frame1 = new Frame (frame, privateDeclSize);
+    publicDeclSize = ((Integer) ast.D2.visit(this, frame1)).intValue();
+    return new Integer(privateDeclSize + publicDeclSize);
   }
 
   @Override
