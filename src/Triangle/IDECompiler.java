@@ -5,10 +5,6 @@
 
 package Triangle;
 
-import Triangle.CodeGenerator.Frame;
-import Triangle.ContextualAnalyzer.Checker;
-
-import java.awt.event.ActionListener;
 import Triangle.SyntacticAnalyzer.SourceFile;
 import Triangle.SyntacticAnalyzer.TokenWriter;
 import Triangle.SyntacticAnalyzer.Scanner;
@@ -16,7 +12,7 @@ import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.SyntacticAnalyzer.Parser;
 import Triangle.TreeWriterHTML.Writer;
 import Triangle.ContextualAnalyzer.Checker;
-// import Triangle.CodeGenerator.Encoder;
+import Triangle.CodeGenerator.Encoder;
 
 
 
@@ -71,12 +67,12 @@ public class IDECompiler {
             Checker checker = new Checker(report);
             checker.check(rootAST);
             if (report.numErrors == 0) {
-                //System.out.println("Code Generation ...");
-                //Encoder encoder = new Encoder(report);
-                //encoder.encodeRun(rootAST, false);
+                System.out.println("Code Generation ...");
+                Encoder encoder = new Encoder(report);
+                encoder.encodeRun(rootAST, false);
                 
                 if (report.numErrors == 0) {
-                    //encoder.saveObjectProgram(sourceName.replace(".tri", ".tam"));
+                    encoder.saveObjectProgram(sourceName.replace(".tri", ".tam"));
                     success = true;
                 }
             }

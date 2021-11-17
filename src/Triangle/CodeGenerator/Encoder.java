@@ -740,11 +740,10 @@ public final class Encoder implements Visitor {
   private ErrorReporter reporter;
 
   // Generates code to run a program.
-  // showingTable is true iff entity description details
+  // showingTable is true if entity description details
   // are to be displayed.
   public final void encodeRun (Program theAST, boolean showingTable) {
     tableDetailsReqd = showingTable;
-    //startCodeGeneration();
     theAST.visit(this, new Frame (0, 0));
     emit(Machine.HALTop, 0, 0, 0);
   }
@@ -1009,11 +1008,16 @@ public final class Encoder implements Visitor {
     }
   }
 
-  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 2 (Austin) */
+  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 3 (Austin) */
+
   @Override
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
+
+    Frame frame = (Frame) o;
+    Integer valSize = (Integer) ast.E.visit(this, frame);   // evaluate[[E]]
+    emit(Machine.PUSHop, 0, 0, valSize);
+    ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+    return new Integer(valSize);
   }
 
   @Override
