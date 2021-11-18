@@ -50,10 +50,12 @@ public class IDECompiler {
         report = new IDEReporter();
         Parser parser = new Parser(scanner, report);
         boolean success = false;
-        SourceFile sourceForPrinting = new SourceFile(sourceName);
+        
         // Para escribir el archivo HTML (Austin)
+        SourceFile sourceForPrinting = new SourceFile(sourceName);
         Scanner scannerForPrinting = new Scanner(sourceForPrinting);
         TokenWriter tokenWriter = new TokenWriter(sourceName, scannerForPrinting);
+        
         rootAST = parser.parseProgram();
 
         // Se escribe el código fuente en un archivo HTML (Austin)
@@ -69,7 +71,7 @@ public class IDECompiler {
             if (report.numErrors == 0) {
                 System.out.println("Code Generation ...");
                 Encoder encoder = new Encoder(report);
-                encoder.encodeRun(rootAST, false);
+                encoder.encodeRun(rootAST, true);
                 
                 if (report.numErrors == 0) {
                     encoder.saveObjectProgram(sourceName.replace(".tri", ".tam"));
