@@ -14,7 +14,10 @@
 
 package Triangle.AbstractSyntaxTrees;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import Triangle.SyntacticAnalyzer.SourcePosition;
+import Triangle.CodeGenerator.PatchData;
 
 public class FuncDeclaration extends Declaration {
 
@@ -26,14 +29,30 @@ public class FuncDeclaration extends Declaration {
     FPS = fpsAST;
     T = tAST;
     E = eAST;
+    patchQueue = new LinkedList<PatchData>();
   }
 
   public Object visit (Visitor v, Object o) {
     return v.visitFuncDeclaration(this, o);
   }
 
+  // Methods to allow mutually recursive declarations (Austin)
+
+  // Pushes the PatchData to the waiting queue
+  public void pushToPatchQueue(PatchData p) {
+    patchQueue.add(p);
+  }
+
+  // Pops the PatchData from the waiting queue
+  public PatchData popFromPatchQueue(PatchData p) {
+    return patchQueue.remove();
+  }
+
   public Identifier I;
   public FormalParameterSequence FPS;
   public TypeDenoter T;
   public Expression E;
+  // New queue to hold the data necessary to patch calls to mutually
+  // recursive function or procedure declarations
+  public Queue<PatchData> patchQueue; 
 }

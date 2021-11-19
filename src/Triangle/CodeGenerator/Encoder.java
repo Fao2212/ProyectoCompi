@@ -300,6 +300,9 @@ public final class Encoder implements Visitor {
 
     emit(Machine.JUMPop, 0, Machine.CBr, 0);
     ast.entity = new KnownRoutine(Machine.closureSize, frame.level, nextInstrAddr);
+    /* The code addresses in this ast's waiting queue are patched 
+    (only for mutually recursive functions) (Austin) */
+    patchRecursiveFuncDeclaration(ast, ((KnownRoutine)ast.entity).address );
     writeTableDetails(ast);
     if (frame.level == Machine.maxRoutineLevel)
       reporter.reportRestriction("can't nest routines more than 7 deep");
@@ -322,6 +325,9 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPop, 0, Machine.CBr, 0);
     ast.entity = new KnownRoutine (Machine.closureSize, frame.level,
                                 nextInstrAddr);
+    /* The code addresses in this ast's waiting queue are patched 
+    (only for mutually recursive procedures) (Austin) */
+    patchRecursiveProcDeclaration(ast, ((KnownRoutine)ast.entity).address );
     writeTableDetails(ast);
     if (frame.level == Machine.maxRoutineLevel)
       reporter.reportRestriction("can't nest routines so deeply");
@@ -633,7 +639,7 @@ public final class Encoder implements Visitor {
     if (ast.decl.entity instanceof KnownRoutine) {
       ObjectAddress address = ((KnownRoutine) ast.decl.entity).address;
       emit(Machine.CALLop, displayRegister(frame.level, address.level),
-	   Machine.CBr, address.displacement);
+	    Machine.CBr, address.displacement);
     } else if (ast.decl.entity instanceof UnknownRoutine) {
       ObjectAddress address = ((UnknownRoutine) ast.decl.entity).address;
       emit(Machine.LOADop, Machine.closureSize, displayRegister(frame.level,
@@ -647,6 +653,28 @@ public final class Encoder implements Visitor {
       int displacement = ((EqualityRoutine) ast.decl.entity).displacement;
       emit(Machine.LOADLop, 0, 0, frame.size / 2);
       emit(Machine.CALLop, Machine.SBr, Machine.PBr, displacement);
+    } else if (ast.decl instanceof ProcDeclaration && ast.decl.entity == null) {
+
+      /* The current frame level and code address (PatchData) are pushed to the declaration's patch waiting queue
+         so that the call command to the yet unknown function or declaration is patched when the entry point to it
+         is known (Austin) */
+      ( (ProcDeclaration) ast.decl).pushToPatchQueue(new PatchData(frame.level, nextInstrAddr));
+
+      /* A dummy call is made, it must be patched later with the entry point data of the function or declaration 
+         that is declared further ahead in the code (Austin) */
+      emit(Machine.CALLop, 0, Machine.CBr, 0);
+
+    } else if (ast.decl instanceof FuncDeclaration && ast.decl.entity == null) {
+
+      /* The current frame level and code address (PatchData) are pushed to the declaration's patch waiting queue
+         so that the call command to the yet unknown function or declaration is patched when the entry point to it
+         is known (Austin) */
+      ( (FuncDeclaration) ast.decl).pushToPatchQueue(new PatchData(frame.level, nextInstrAddr));
+
+      /* A dummy call is made, it must be patched later with the entry point data of the function or declaration 
+         that is declared further ahead in the code (Austin) */
+      emit(Machine.CALLop, 0, Machine.CBr, 0);
+
     }
     return null;
   }
@@ -870,6 +898,28 @@ public final class Encoder implements Visitor {
     Machine.code[addr].d = d;
   }
 
+  /* Patches the call instruction in the code for all the applied occurrences of 
+     functions or procedures in a procedure declaration's waiting list. This
+     is only necessary to allow proedures to "look ahead" for other
+     procedures or functions in a mutually recursive declaration (Austin) */
+  private void patchRecursiveProcDeclaration(ProcDeclaration d, ObjectAddress oa) {
+      for (PatchData pd : d.patchWaitingList ) {
+        Machine.code[pd.CA].n = displayRegister(pd.FL, oa.level);
+        Machine.code[pd.CA].d = oa.displacement;
+      } 
+  }
+
+  /* Patches the call instruction in the code for all the applied occurrences of 
+     functions or procedures in a function declaration's waiting list. This
+     is only necessary to allow proedures to "look ahead" for other
+     procedures or functions in a mutually recursive declaration (Austin) */
+  private void patchRecursiveFuncDeclaration(FuncDeclaration d, ObjectAddress oa) {
+      for (PatchData pd : d.patchWaitingList ) {
+        Machine.code[pd.CA].n = displayRegister(pd.FL, oa.level);
+        Machine.code[pd.CA].d = oa.displacement;
+      }
+  }
+
   // DATA REPRESENTATION
 
   public int characterValuation (String spelling) {
@@ -1067,16 +1117,26 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  /* Visitor method for the main AST that encompases a recursive declaration, it calls the 
+     body's sequential procedure-function declaration (Austin) */
   @Override
   public Object visitRecursiveProcFuncsDeclaration(RecursiveProcFuncsDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
+    Integer extraSize = (Integer) visitSequentialProcFuncDeclaration((SequentialProcFuncDeclaration) ast.PFD, o);
+    return extraSize;
   }
 
+  /* Visits a mutually recursive function or declaration followed by another one. This also allows
+     for nested sequential recursive procedure-function declarations (Austin) */
   @Override
   public Object visitSequentialProcFuncDeclaration(SequentialProcFuncDeclaration ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
+
+    Frame frame = (Frame) o;
+    int extraSize1, extraSize2;
+
+    extraSize1 = ((Integer) ast.D1.visit(this, frame)).intValue();
+    Frame frame1 = new Frame (frame, extraSize1);
+    extraSize2 = ((Integer) ast.D2.visit(this, frame1)).intValue();
+    return new Integer(extraSize1 + extraSize2);
   }
 
   /* Método que recorre los bloques privado y público de una declaración local
