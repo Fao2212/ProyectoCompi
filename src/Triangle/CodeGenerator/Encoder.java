@@ -903,7 +903,7 @@ public final class Encoder implements Visitor {
      is only necessary to allow proedures to "look ahead" for other
      procedures or functions in a mutually recursive declaration (Austin) */
   private void patchRecursiveProcDeclaration(ProcDeclaration d, ObjectAddress oa) {
-      for (PatchData pd : d.patchWaitingList ) {
+      for (PatchData pd : d.patchQueue ) {
         Machine.code[pd.CA].n = displayRegister(pd.FL, oa.level);
         Machine.code[pd.CA].d = oa.displacement;
       } 
@@ -914,7 +914,7 @@ public final class Encoder implements Visitor {
      is only necessary to allow proedures to "look ahead" for other
      procedures or functions in a mutually recursive declaration (Austin) */
   private void patchRecursiveFuncDeclaration(FuncDeclaration d, ObjectAddress oa) {
-      for (PatchData pd : d.patchWaitingList ) {
+      for (PatchData pd : d.patchQueue ) {
         Machine.code[pd.CA].n = displayRegister(pd.FL, oa.level);
         Machine.code[pd.CA].d = oa.displacement;
       }
