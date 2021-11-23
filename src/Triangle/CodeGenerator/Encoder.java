@@ -1111,9 +1111,9 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  /* Generates TAM code for a [repeat for Id in Exp do Com end] command (Austin) */
   @Override
   public Object visitRepeatIn(RepeatIn ast, Object o) {
-    // TODO Hacer el repeat in
     Frame frame = (Frame) o;
     InVarDeclData controlVarData;
     int jumpEvalAddr, commandAddr, evalAddr;
@@ -1121,39 +1121,45 @@ public final class Encoder implements Visitor {
     // elaborate [[ Id in Exp ]]
     controlVarData = (InVarDeclData) ast.IVD.visit(this, frame);
 
+    // -------------------- COMMAND SECTION ---------------------
     Frame frame1 = new Frame (frame.level, controlVarData.declSize());
     jumpEvalAddr = nextInstrAddr;
     emit(Machine.JUMPop, 0, Machine.CBr, 0);
     commandAddr = nextInstrAddr;
 
-    // LOAD the value from the array at the current displacement
-    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -1); // Duplicate the stack top
-    emit(Machine.LOADIop, controlVarData.elemSize, 0, 0);
-    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -4);
+    // Update de control variable for the loop
+    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -1);    
+    emit(Machine.LOADIop, controlVarData.elemSize, 0, 0);     
+    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -4); 
 
-    // execute Com
+    // execute [[Com]]
     ast.C.visit(this, frame1);
 
-    // The counter is updated
+    // --------------- CONDITION EVALUATION SECTION ----------------
+
+    // Update current array element displacement
     emit(Machine.LOADLop, 0, 0, controlVarData.elemSize);
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
-    evalAddr = nextInstrAddr;
     // Patch the jump instruction to the evaluation section
+    evalAddr = nextInstrAddr;
     patch(jumpEvalAddr, evalAddr);
-    // Load the maximum displacement of the array and the current displacement
+
+    // Check if the loop has ended or not
     emit(Machine.LOADop, 2, Machine.STr, -2);
-    // Check if the counter is still under the maximum index
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
-    // Jump back to the loop if true
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr);
-    // Pop the for-loop control variable and the counter
+
+    // Cleanup the storage allocated by the InVarDecl
     emit(Machine.POPop, 0, 0, controlVarData.declSize());
     return null;
   }
 
+  /* Generates TAM code to elaborate the declarations necessary for 
+     a [repeat for Id in Exp do Com end] command (Austin) */
   @Override
   public Object visitInVarDecl(InVarDecl ast, Object o) {
+
     // elaborate [[ Id in Exp ]]
     Frame frame = (Frame) o;
     Integer arraySize, elemSize;
@@ -1161,22 +1167,23 @@ public final class Encoder implements Visitor {
     // evaluate Exp
     arraySize = ((Integer) ast.E.visit(this, frame)); // Returns the size of the array expression
     ast.E.entity = new KnownAddress(arraySize, frame.level, frame.size);
+
     // elaborate Id 
-    elemSize = (Integer) ast.T.visit(this, frame); // Returns the size of the array elements
-    // Frame frame1 = new Frame(frame.level + 1, 0); // Makes the Id local to the current loop
-    // PUSH t
-    emit(Machine.PUSHop, 0, 0, elemSize); // Creates space for the for-loop control variable
+    elemSize = (Integer) ast.T.visit(this, frame); 
+    emit(Machine.PUSHop, 0, 0, elemSize); 
     ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
-    
+
+    // LOADA d[r] where d= max array displacement; r= display register
     emit(Machine.LOADAop, 0, 
          displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-         frame.size + (arraySize*elemSize-1)); // Loads the maximum displacement of the array
-    
+         frame.size + (arraySize*elemSize-1));
+
+    // LOADA d[r] where d= displacement of the first element of the array; r= display register
     emit(Machine.LOADAop, 0, 
         displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-        frame.size); // Loads the displacement of the first element of the array
+        frame.size);
 
-    // Returns a pair with the size of the array and the size of the array elements
+    // Returns a pair with the size of the array and the size of the array element type
     return new InVarDeclData(arraySize, elemSize);
   }
 
