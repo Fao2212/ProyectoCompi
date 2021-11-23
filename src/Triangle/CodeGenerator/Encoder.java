@@ -104,6 +104,7 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public final class Encoder implements Visitor {
 
@@ -1129,8 +1130,8 @@ public final class Encoder implements Visitor {
 
     // Update de control variable for the loop
     emit(Machine.LOADop, Machine.addressSize, Machine.STr, -Machine.addressSize);    
-    emit(Machine.LOADIop, controlVarData.elemSize, 0, 0);     
-    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -(3*Machine.addressSize + controlVarData.elemSize)); 
+    emit(Machine.LOADIop, controlVarData.ctrlVarSize, 0, 0);     
+    emit(Machine.STOREop, controlVarData.ctrlVarSize, Machine.STr, -(2*Machine.addressSize + 2*controlVarData.ctrlVarSize)); 
 
     // execute [[Com]]
     ast.C.visit(this, frame1);
@@ -1138,7 +1139,7 @@ public final class Encoder implements Visitor {
     // --------------- CONDITION EVALUATION SECTION ----------------
 
     // Update current array element displacement
-    emit(Machine.LOADLop, 0, 0, controlVarData.elemSize);
+    emit(Machine.LOADLop, 0, 0, controlVarData.ctrlVarSize);
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
     // Patch the jump instruction to the evaluation section
@@ -1173,15 +1174,45 @@ public final class Encoder implements Visitor {
     emit(Machine.PUSHop, 0, 0, elemSize); 
     ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
 
-    // LOADA d[r] where d= max array displacement; r= display register
-    emit(Machine.LOADAop, 0, 
-         displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-         frame.size + (arraySize*elemSize-1));
+    if (ast.E instanceof VnameExpression) {
+      KnownAddress addr = new KnownAddress(0, 0, 0);
+      if (((VnameExpression) ast.E).V instanceof SimpleVname)
+        addr = (KnownAddress) ((SimpleVname) ((VnameExpression) ast.E).V).I.decl.entity;
+      else if (((VnameExpression) ast.E).V instanceof DotVname) {
+        KnownAddress tmp1 = (KnownAddress) ((VnameExpression) ast.E).entity;
+        Field tmp2 = (Field) ((DotVname) ((VnameExpression) ast.E).V).I.decl.entity;
+        addr.address.level = tmp1.address.level;
+        addr.address.displacement = tmp1.address.displacement + tmp2.fieldOffset;
+      }
+        
+      // else if (((VnameExpression) ast.E).V instanceof SubscriptVname)
+      //   id = ((SubscriptVname) ((VnameExpression) ast.E).V).;
 
-    // LOADA d[r] where d= displacement of the first element of the array; r= display register
-    emit(Machine.LOADAop, 0, 
-        displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-        frame.size);
+      // LOADA d[r] where d= max array displacemen; r= display register
+      emit(Machine.LOADAop, 0, 
+            displayRegister(frame.level, addr.address.level), 
+            addr.address.displacement + (arraySize-elemSize));
+      //((KnownAddress)id.decl.entity).address.level), 
+      /*((KnownAddress)id.decl.entity).address.displacement */
+
+      // LOADA d[r] where d= displacement of the first element of the array; r= display register
+      emit(Machine.LOADAop, 0, 
+           displayRegister(frame.level, addr.address.level), 
+           addr.address.displacement);
+      //displayRegister(frame.level, ((KnownAddress)id.decl.entity).address.level), 
+      //((KnownAddress)id.decl.entity).address.displacement);
+    } 
+    else {
+      // LOADA d[r] where d= max array displacement; r= display register
+      emit(Machine.LOADAop, 0, 
+      displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
+      ((KnownAddress)ast.E.entity).address.displacement + (arraySize-elemSize));
+
+      // LOADA d[r] where d= displacement of the first element of the array; r= display register
+      emit(Machine.LOADAop, 0, 
+      displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
+      ((KnownAddress)ast.E.entity).address.displacement);
+    }
 
     // Returns a pair with the size of the array and the size of the array element type
     return new InVarDeclData(arraySize, elemSize);
