@@ -3,7 +3,6 @@ Created-By: 1.6.0 (IBM Corporation)
 
 Name: epl-v10.html
 SHA1-Digest: jYDaDJLBJpthCwPMgGFVYASJjIU=
-
 Name: META-INF/eclipse.inf
 SHA1-Digest: 09gN05tobgS/MdtqyTNQhOhB73M=
 
