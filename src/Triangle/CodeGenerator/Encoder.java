@@ -1128,9 +1128,9 @@ public final class Encoder implements Visitor {
     commandAddr = nextInstrAddr;
 
     // Update de control variable for the loop
-    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -1);    
+    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -Machine.addressSize);    
     emit(Machine.LOADIop, controlVarData.elemSize, 0, 0);     
-    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -4); 
+    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -(3*Machine.addressSize + controlVarData.elemSize)); 
 
     // execute [[Com]]
     ast.C.visit(this, frame1);
@@ -1146,7 +1146,7 @@ public final class Encoder implements Visitor {
     patch(jumpEvalAddr, evalAddr);
 
     // Check if the loop has ended or not
-    emit(Machine.LOADop, 2, Machine.STr, -2);
+    emit(Machine.LOADop, 2*Machine.addressSize, Machine.STr, -(2*Machine.addressSize));
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr);
 
