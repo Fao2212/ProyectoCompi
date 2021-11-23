@@ -18,6 +18,7 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import TAM.Instruction;
 import TAM.Machine;
@@ -91,6 +92,7 @@ import Triangle.AbstractSyntaxTrees.SingleFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.SingleRecordAggregate;
 import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
+import Triangle.AbstractSyntaxTrees.TypeDenoter;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
 import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.UntilCommand;
@@ -1060,17 +1062,15 @@ public final class Encoder implements Visitor {
 
   /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 3 (Austin) */
 
-  /* Método que genera código para reservar espacio en la pila para una variable inicializada 
-     una vez que haya sido evaluada su expresión (Austin) */
+  /* Reserves space on the stack for the initialized variable by evaluating 
+     the AST expression (Austin) */
   @Override
   public Object visitVarInitializedDeclaration(VarInitializedDeclaration ast, Object o) {
 
     // elaborate[[var I := E]]
     Frame frame = (Frame) o;
     // evaluate[[E]]
-    Integer valSize = (Integer) ast.E.visit(this, frame);   
-    // PUSH s
-    emit(Machine.PUSHop, 0, 0, valSize);
+    Integer valSize = (Integer) ast.E.visit(this, frame);
     ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
     return new Integer(valSize);
   }
@@ -1113,8 +1113,71 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitRepeatIn(RepeatIn ast, Object o) {
-    // TODO Auto-generated method stub
+    // TODO Hacer el repeat in
+    Frame frame = (Frame) o;
+    InVarDeclData controlVarData;
+    int jumpEvalAddr, commandAddr, evalAddr;
+
+    // elaborate [[ Id in Exp ]]
+    controlVarData = (InVarDeclData) ast.IVD.visit(this, frame);
+
+    Frame frame1 = new Frame (frame.level, controlVarData.declSize());
+    jumpEvalAddr = nextInstrAddr;
+    emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    commandAddr = nextInstrAddr;
+
+    // LOAD the value from the array at the current displacement
+    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -1); // Duplicate the stack top
+    emit(Machine.LOADIop, controlVarData.elemSize, 0, 0);
+    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -4);
+
+    // execute Com
+    ast.C.visit(this, frame1);
+
+    // The counter is updated
+    emit(Machine.LOADLop, 0, 0, controlVarData.elemSize);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+
+    evalAddr = nextInstrAddr;
+    // Patch the jump instruction to the evaluation section
+    patch(jumpEvalAddr, evalAddr);
+    // Load the maximum displacement of the array and the current displacement
+    emit(Machine.LOADop, 2, Machine.STr, -2);
+    // Check if the counter is still under the maximum index
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
+    // Jump back to the loop if true
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr);
+    // Pop the for-loop control variable and the counter
+    emit(Machine.POPop, 0, 0, controlVarData.declSize());
     return null;
+  }
+
+  @Override
+  public Object visitInVarDecl(InVarDecl ast, Object o) {
+    // elaborate [[ Id in Exp ]]
+    Frame frame = (Frame) o;
+    Integer arraySize, elemSize;
+
+    // evaluate Exp
+    arraySize = ((Integer) ast.E.visit(this, frame)); // Returns the size of the array expression
+    ast.E.entity = new KnownAddress(arraySize, frame.level, frame.size);
+    // elaborate Id 
+    elemSize = (Integer) ast.T.visit(this, frame); // Returns the size of the array elements
+    // Frame frame1 = new Frame(frame.level + 1, 0); // Makes the Id local to the current loop
+    // PUSH t
+    emit(Machine.PUSHop, 0, 0, elemSize); // Creates space for the for-loop control variable
+    ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
+    
+    emit(Machine.LOADAop, 0, 
+         displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
+         frame.size + (arraySize*elemSize-1)); // Loads the maximum displacement of the array
+    
+    emit(Machine.LOADAop, 0, 
+        displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
+        frame.size); // Loads the displacement of the first element of the array
+
+    // Returns a pair with the size of the array and the size of the array elements
+    return new InVarDeclData(arraySize, elemSize);
   }
 
   /* Visitor method for the main AST that encompases a recursive declaration, it calls the 
@@ -1156,12 +1219,6 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  @Override
-  public Object visitInVarDecl(InVarDecl ast, Object o) {
     // TODO Auto-generated method stub
     return null;
   }
