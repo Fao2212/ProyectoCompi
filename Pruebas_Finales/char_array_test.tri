@@ -1,0 +1,6 @@
+let
+ var a : array 5 of Char
+in
+ a := ['H','o','l','a','!'];
+ put(a[1+3])
+end

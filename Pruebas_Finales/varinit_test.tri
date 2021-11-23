@@ -1,0 +1,8 @@
+let
+ var a := [1,2,3,4];
+ var b : Integer;
+ var c := a[1] + b
+in
+ b := 10;
+ putint(c)
+end

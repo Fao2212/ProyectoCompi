@@ -1,0 +1,6 @@
+let
+ var a: array 4 of Integer
+in
+ a := [0,1,2,3];
+ putint(a[1])
+end
