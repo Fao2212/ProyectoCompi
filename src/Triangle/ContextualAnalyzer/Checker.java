@@ -1041,7 +1041,8 @@ public final class Checker implements Visitor {
       reporter.reportError("Integer expression expected here", "", ast.E.position);
     }
     idTable.openScope();
-    idTable.enter(ast.RVD.I.spelling, ast.RVD);
+    if(ast.RVD.T != null)//Se agregan condiciones que validan que si se haya asignado la variable correctamente(Fernando)
+      idTable.enter(ast.RVD.I.spelling, ast.RVD);
     ast.C.visit(this, null);//Se visita el comando
     idTable.closeScope();
     return null;
@@ -1057,7 +1058,8 @@ public final class Checker implements Visitor {
       reporter.reportError("Integer expression expected here", "", ast.E1.position);
     }
     idTable.openScope();
-    idTable.enter(ast.RVD.I.spelling, ast.RVD);
+    if(ast.RVD.T != null)//Se agregan condiciones que validan que si se haya asignado la variable correctamente(Fernando)
+      idTable.enter(ast.RVD.I.spelling, ast.RVD);
     //Se agrega la expresion 2 dentro del scope para que pueda evaluarse en el while o en el until
     TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
     if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
@@ -1076,7 +1078,8 @@ public final class Checker implements Visitor {
       reporter.reportError("Integer expression expected here", "", ast.E1.position);
     }
     idTable.openScope();
-    idTable.enter(ast.RVD.I.spelling,ast.RVD);
+    if(ast.RVD.T != null)//Se agregan condiciones que validan que si se haya asignado la variable correctamente(Fernando)
+      idTable.enter(ast.RVD.I.spelling,ast.RVD);
     //Se agrega la expresion 2 dentro del scope para que pueda evaluarse en el while o en el until
     TypeDenoter e2Type = (TypeDenoter) ast.E2.visit(this, null);  //Acceso a la expression y se convierte a tipo
     if (! e2Type.equals(StdEnvironment.booleanType)) //Revision de tipo booleano
@@ -1091,7 +1094,8 @@ public final class Checker implements Visitor {
   public Object visitRepeatIn(RepeatIn ast, Object o) {
     ast.IVD.visit(this, null);//Revision del arreglo que llega
     idTable.openScope();
-    idTable.enter(ast.IVD.I.spelling,ast.IVD);
+    if(ast.IVD.T != null)//Se agregan condiciones que validan que si se haya asignado la variable correctamente(Fernando)
+      idTable.enter(ast.IVD.I.spelling,ast.IVD);
     ast.C.visit(this, null);
     idTable.closeScope();
     return null;
