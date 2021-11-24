@@ -1078,19 +1078,40 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitRepeatUntilCommand(UntilCommand ast, Object o) {
-    // TODO Auto-generated method stub
+    Frame frame = (Frame) o;
+    int jumpAddr, loopAddr;
+
+    jumpAddr = nextInstrAddr;//Salta a la siguiente instruccion
+    emit(Machine.JUMPop, 0, Machine.CBr, 0);//Salto dummy
+    loopAddr = nextInstrAddr;//Guarda la direccionl loop condicional
+    ast.C.visit(this, frame);//Ejecucion del comando
+    patch(jumpAddr, nextInstrAddr);//Guardado de la instruccion en pila de codigo
+    ast.E.visit(this, frame);//Evaluacion de la expresion
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);//Salto condicional si es un resultado falso
     return null;
   }
 
   @Override
   public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
-    // TODO Auto-generated method stub
+    Frame frame = (Frame) o;
+    int loopAddr;
+
+    loopAddr = nextInstrAddr;//Guarda la direccionl loop condicional
+    ast.C.visit(this, frame);//Ejecucion del comando
+    ast.E.visit(this, frame);//Evaluacion de la expresion
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);//Salto condicional si es un resultado falso
     return null;
   }
 
   @Override
   public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
-    // TODO Auto-generated method stub
+    Frame frame = (Frame) o;
+    int loopAddr;
+
+    loopAddr = nextInstrAddr;//Guarda la direccionl loop condicional
+    ast.C.visit(this, frame);//Ejecucion del comando
+    ast.E.visit(this, frame);//Evaluacion de la expresion
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);//Salto condicional si es un resultado falso
     return null;
   }
 

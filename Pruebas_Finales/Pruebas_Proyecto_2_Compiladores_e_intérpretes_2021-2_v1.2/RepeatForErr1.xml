@@ -9,7 +9,7 @@
 </IntegerExpression>
 </RangeVarDecl>
 <IntegerExpression>
-<IntegerLiteral value="1"/>
+<IntegerLiteral value="10"/>
 </IntegerExpression>
 <CallCommand>
 <Identifier value="putint"/>
