@@ -1156,6 +1156,30 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  public KnownAddress test (InVarDecl ast) {
+    KnownAddress addr = new KnownAddress(0, 0, 0);
+    SubscriptVname sv = (SubscriptVname)((VnameExpression) ast.E).V;
+    if (sv.V instanceof SubscriptVname) {
+      KnownAddress tmp = auxTest(sv);
+      return addr;
+    } else {
+      addr = (KnownAddress) ((SimpleVname)sv.V).I.decl.entity;
+      int index = Integer.valueOf(((IntegerExpression)sv.E).IL.spelling);
+      int valueSize = ((VnameExpression) ast.E).type.entity.size;
+      addr.address.displacement += index * valueSize;
+      return addr;
+    }
+  }
+
+  public KnownAddress auxTest(SubscriptVname ast) {
+    KnownAddress addr = new KnownAddress(0, 0, 0);
+    addr = (KnownAddress) ((SimpleVname)((SubscriptVname)(((VnameExpression)ast.E).V)).V).I.decl.entity;
+    int index = Integer.valueOf(((IntegerExpression)((SubscriptVname)(((VnameExpression)ast.E).V)).E).IL.spelling);
+    int valueSize = ((VnameExpression) ast.E).type.entity.size;
+    addr.address.displacement += index * valueSize;
+    return addr;
+  }
+
   /* Generates TAM code to elaborate the declarations necessary for 
      a [repeat for Id in Exp do Com end] command (Austin) */
   @Override
@@ -1175,40 +1199,21 @@ public final class Encoder implements Visitor {
     ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
 
     if (ast.E instanceof VnameExpression) {
-      KnownAddress addr = new KnownAddress(0, 0, 0);
-      if (((VnameExpression) ast.E).V instanceof SimpleVname)
-        addr = (KnownAddress) ((SimpleVname) ((VnameExpression) ast.E).V).I.decl.entity;
-      else if (((VnameExpression) ast.E).V instanceof DotVname) {
-        KnownAddress tmp1 = (KnownAddress) ((VnameExpression) ast.E).entity;
-        Field tmp2 = (Field) ((DotVname) ((VnameExpression) ast.E).V).I.decl.entity;
-        addr.address.level = tmp1.address.level;
-        addr.address.displacement = tmp1.address.displacement + tmp2.fieldOffset;
-      }
-        
-      // else if (((VnameExpression) ast.E).V instanceof SubscriptVname)
-      //   id = ((SubscriptVname) ((VnameExpression) ast.E).V).;
+      // Loads the max displacement for the array
+      encodeFetchAddress(((VnameExpression) ast.E).V, frame);
+      emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+      emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
-      // LOADA d[r] where d= max array displacemen; r= display register
-      emit(Machine.LOADAop, 0, 
-            displayRegister(frame.level, addr.address.level), 
-            addr.address.displacement + (arraySize-elemSize));
-      //((KnownAddress)id.decl.entity).address.level), 
-      /*((KnownAddress)id.decl.entity).address.displacement */
-
-      // LOADA d[r] where d= displacement of the first element of the array; r= display register
-      emit(Machine.LOADAop, 0, 
-           displayRegister(frame.level, addr.address.level), 
-           addr.address.displacement);
-      //displayRegister(frame.level, ((KnownAddress)id.decl.entity).address.level), 
-      //((KnownAddress)id.decl.entity).address.displacement);
+      // Loads the first element displacement
+      encodeFetchAddress(((VnameExpression) ast.E).V, frame);     
     } 
     else {
-      // LOADA d[r] where d= max array displacement; r= display register
+       // Loads the max displacement for the array
       emit(Machine.LOADAop, 0, 
       displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
       ((KnownAddress)ast.E.entity).address.displacement + (arraySize-elemSize));
 
-      // LOADA d[r] where d= displacement of the first element of the array; r= display register
+      // Loads the first element displacement
       emit(Machine.LOADAop, 0, 
       displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
       ((KnownAddress)ast.E.entity).address.displacement);
