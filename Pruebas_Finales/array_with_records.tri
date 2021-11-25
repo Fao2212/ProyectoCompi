@@ -1,0 +1,26 @@
+let
+  type Date ~ record y: Integer, m: Integer, d: Integer end;
+  var dates : array 3 of Date;
+  var juan : Date; var pedro: Date; var ana : Date;
+  type Test ~ record l: Char, d: array 3 of Date end;
+  var test : Test;
+
+  var matrix : array 3 of array 3 of array 3 of Date;
+  var i : Integer
+in
+  juan.d := 1; juan.m := 2; juan.y := 2003;
+  pedro.d := 2; pedro.m := 3; pedro.y := 2004;
+  ana.d := 3; ana.m := 4; ana.y := 2005;
+  dates[0] := juan;
+  dates[1] := pedro;
+  dates[2] := ana;
+  test.l := 'a';
+  test.d := dates;
+  matrix[2][1][0] := juan;
+  matrix[2][1][1] := pedro;
+  matrix[2][1][2] := ana;
+  
+  repeat for d in [1,2,3,4] do 
+	putint(d); put(' ')
+  end
+end

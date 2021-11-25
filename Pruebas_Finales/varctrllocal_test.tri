@@ -1,0 +1,10 @@
+let
+ var a: Integer
+in
+ repeat for x in [1, 2, 3, 4, 5, 6, 7, 8, 9] do 
+    putint (x)
+ end;
+ putint(x) ! Deberia dar error, x es local al comando repeat for in
+end
+
+!OK

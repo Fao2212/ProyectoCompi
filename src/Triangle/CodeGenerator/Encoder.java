@@ -104,6 +104,7 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public final class Encoder implements Visitor {
 
@@ -1060,7 +1061,8 @@ public final class Encoder implements Visitor {
     }
   }
 
-  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 3 (Austin) */
+  /* Visitor methods that generate TAM code for the additions to the Triangle language
+     that make up Traingle Ext (Austin) */
 
   /* Reserves space on the stack for the initialized variable by evaluating 
      the AST expression (Austin) */
@@ -1071,7 +1073,7 @@ public final class Encoder implements Visitor {
     Frame frame = (Frame) o;
     // evaluate[[E]]
     Integer valSize = (Integer) ast.E.visit(this, frame);
-    ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+    ast.entity = new KnownAddress(valSize, frame.level, frame.size);
     return new Integer(valSize);
   }
 
@@ -1230,9 +1232,9 @@ public final class Encoder implements Visitor {
     commandAddr = nextInstrAddr;
 
     // Update de control variable for the loop
-    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -1);    
-    emit(Machine.LOADIop, controlVarData.elemSize, 0, 0);     
-    emit(Machine.STOREop, controlVarData.elemSize, Machine.STr, -4); 
+    emit(Machine.LOADop, Machine.addressSize, Machine.STr, -Machine.addressSize);    
+    emit(Machine.LOADIop, controlVarData.ctrlVarSize, 0, 0);     
+    emit(Machine.STOREop, controlVarData.ctrlVarSize, Machine.STr, -(2*Machine.addressSize + 2*controlVarData.ctrlVarSize)); 
 
     // execute [[Com]]
     ast.C.visit(this, frame1);
@@ -1240,7 +1242,7 @@ public final class Encoder implements Visitor {
     // --------------- CONDITION EVALUATION SECTION ----------------
 
     // Update current array element displacement
-    emit(Machine.LOADLop, 0, 0, controlVarData.elemSize);
+    emit(Machine.LOADLop, 0, 0, controlVarData.ctrlVarSize);
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
     // Patch the jump instruction to the evaluation section
@@ -1248,7 +1250,7 @@ public final class Encoder implements Visitor {
     patch(jumpEvalAddr, evalAddr);
 
     // Check if the loop has ended or not
-    emit(Machine.LOADop, 2, Machine.STr, -2);
+    emit(Machine.LOADop, 2*Machine.addressSize, Machine.STr, -(2*Machine.addressSize));
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr);
 
@@ -1275,15 +1277,26 @@ public final class Encoder implements Visitor {
     emit(Machine.PUSHop, 0, 0, elemSize); 
     ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
 
-    // LOADA d[r] where d= max array displacement; r= display register
-    emit(Machine.LOADAop, 0, 
-         displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-         frame.size + (arraySize*elemSize-1));
+    if (ast.E instanceof VnameExpression) {
+      // Loads the max displacement for the array
+      encodeFetchAddress(((VnameExpression) ast.E).V, frame);
+      emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+      emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
-    // LOADA d[r] where d= displacement of the first element of the array; r= display register
-    emit(Machine.LOADAop, 0, 
-        displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-        frame.size);
+      // Loads the first element displacement
+      encodeFetchAddress(((VnameExpression) ast.E).V, frame);     
+    } 
+    else {
+       // Loads the max displacement for the array
+      emit(Machine.LOADAop, 0, 
+      displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
+      ((KnownAddress)ast.E.entity).address.displacement + (arraySize-elemSize));
+
+      // Loads the first element displacement
+      emit(Machine.LOADAop, 0, 
+      displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
+      ((KnownAddress)ast.E.entity).address.displacement);
+    }
 
     // Returns a pair with the size of the array and the size of the array element type
     return new InVarDeclData(arraySize, elemSize);

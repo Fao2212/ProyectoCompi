@@ -5,17 +5,17 @@ public class InVarDeclData {
     InVarDeclData(int pArraySize, int pElemSize) 
     {
         arraySize = pArraySize;
-        elemSize = pElemSize;
+        ctrlVarSize = pElemSize;
     }
 
     public int declSize() {
-        return arraySize + elemSize + 2;    // The two is for the displacement addresses at the stack top
+        return arraySize + ctrlVarSize + 2;    // The two is for the displacement addresses at the stack top
     }
 
     public int arrayElemCount() {
-        return arraySize/elemSize;
+        return arraySize/ctrlVarSize;
     }
 
     public int arraySize;  // Array expression size
-    public int elemSize;  // Element size
+    public int ctrlVarSize;  // Control variable size
 }
