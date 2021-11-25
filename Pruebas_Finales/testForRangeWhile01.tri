@@ -1,0 +1,1 @@
+repeat for i := range 1 .. 5 until 1 > 5 do putint(i) end

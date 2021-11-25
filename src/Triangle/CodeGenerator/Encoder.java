@@ -1121,81 +1121,94 @@ public final class Encoder implements Visitor {
     Integer lastValue,controlVariable;
     //Se busca el ultimo valor
     lastValue = (Integer)ast.E.visit(this, frame);
-    emit(Machine.PUSHop, 0, 0, lastValue);//No se si deberia de tener ese last Value
     //Asigno id con el valor de el primer limite
     controlVariable = (Integer)ast.RVD.visit(this, frame);
-    emit(Machine.PUSHop, 0, 0, controlVariable);//Push de la variable de control
     //Jump dummy
-    /////////////////No se como usarlo xd o que significa
+    /////////////////Evaluar si rvd es el sup
+    jumpEvalAddr = nextInstrAddr;
+    emit(Machine.JUMPop, 0,Machine.CBr, 0);
     //Ejecuto el comando 
     loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
     ast.C.visit(this, frame);
     //Incrementa en 1 lo que esta en la pila
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    patch(jumpEvalAddr, nextInstrAddr);
     //Evaluacion de la condicion si varible de control en menor o igual al lastValue
-    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);//Por como se orenan los parametros al hacer la op
     //Salto a inicio de ciclo 
     emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
     //Saca los dos valores de la pila
-    emit(Machine.POPop, 0, 0, 2);
+    emit(Machine.POPop, 0, 0, 2*Machine.integerSize);//Mantiene por el tamano de un entero en TAM
     return null;
   }
 
   @Override
   public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
     Frame frame = (Frame) o;
-    int loopAddr,jumpEvalAddr;
+    int loopAddr,jumpEvalAddr,whileAddr;
     Integer lastValue,controlVariable;
     //Se busca el ultimo valor
     lastValue = (Integer)ast.E2.visit(this, frame);
-    emit(Machine.PUSHop, 0, 0, lastValue);//No se si deberia de tener ese last Value
     //Asigno id con el valor de el primer limite
     controlVariable = (Integer)ast.RVD.visit(this, frame);
-    emit(Machine.PUSHop, 0, 0, controlVariable);//Push de la variable de control
+
     //Jump dummy
-    /////////////////No se como usarlo xd o que significa
+    jumpEvalAddr = nextInstrAddr;
+    emit(Machine.JUMPop, 0,Machine.CBr, 0);
     //Ejecuto el comando 
+
     loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
     //Evaluo la condicion de la expresion booleana
     ast.E2.visit(this, frame);
-    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);//No estoy seguro de a donde saltar :c
+    whileAddr = nextInstrAddr;
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, 0);
     ast.C.visit(this, frame);
     //Incrementa en 1 lo que esta en la pila
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    patch(jumpEvalAddr, nextInstrAddr);
     //Evaluacion de la condicion si varible de control en menor o igual al lastValue
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
     //Salto a inicio de ciclo 
     emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
     //Saca los dos valores de la pila
+    patch(whileAddr, nextInstrAddr);
     emit(Machine.POPop, 0, 0, 2);
     return null;
   }
 
+  //Range
   @Override
   public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
-    Frame frame = (Frame) o;
-    int loopAddr,jumpEvalAddr;
+    Frame frame1 = (Frame) o;
+    int loopAddr,jumpEvalAddr,untilAddr,untilCondSize;
     Integer lastValue,controlVariable;
-    //Se busca el ultimo valor
-    lastValue = (Integer)ast.E2.visit(this, frame);
-    emit(Machine.PUSHop, 0, 0, lastValue);//No se si deberia de tener ese last Value
     //Asigno id con el valor de el primer limite
-    controlVariable = (Integer)ast.RVD.visit(this, frame);
-    emit(Machine.PUSHop, 0, 0, controlVariable);//Push de la variable de control
+    controlVariable = (Integer)ast.RVD.visit(this, frame1);
+     //Se busca el ultimo valor
+    lastValue = (Integer)ast.E1.visit(this, frame1);
+    Frame frame2 = new Frame(frame1,lastValue+controlVariable);
     //Jump dummy
-    /////////////////No se como usarlo xd o que significa
+    jumpEvalAddr = nextInstrAddr;
+    emit(Machine.JUMPop, 0,Machine.CBr, 0);
     //Ejecuto el comando 
     loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
-    ast.E2.visit(this, frame);
-    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, 0);//No estoy seguro de a donde saltar :c
-    ast.C.visit(this, frame);
+    untilCondSize = (Integer)ast.E2.visit(this, frame2);
+    untilAddr = nextInstrAddr;
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);//No estoy seguro de a donde saltar :c
+    Frame frame3 = new Frame(frame2,untilCondSize);
+    ast.C.visit(this, frame3);
     //Incrementa en 1 lo que esta en la pila
+    emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);//Carga 2 atras en el stack
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    emit(Machine.STOREop,Machine.integerSize,Machine.STr,-3*Machine.integerSize);
+    patch(jumpEvalAddr, nextInstrAddr);
     //Evaluacion de la condicion si varible de control en menor o igual al lastValue
+    emit(Machine.LOADop, 2* Machine.integerSize, Machine.STr, -2* Machine.integerSize);//Se hace una copia de los elementos de la pila
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
     //Salto a inicio de ciclo 
     emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
     //Saca los dos valores de la pila
+    patch(untilAddr, nextInstrAddr);
     emit(Machine.POPop, 0, 0, 2);
     return null;
   }
@@ -1318,7 +1331,7 @@ public final class Encoder implements Visitor {
     Frame frame = (Frame) o;
     int extraSize = 0;
     int valSize = ((Integer) ast.E.visit(this, frame)).intValue();
-    ast.entity = new UnknownValue(valSize, frame.level, frame.size);
+    ast.entity = new KnownAddress(valSize, frame.level, frame.size);
     extraSize = valSize;
     writeTableDetails(ast);
     return new Integer(extraSize);
