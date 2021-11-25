@@ -1116,19 +1116,87 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitRepeatForRange(RepeatForRange ast, Object o) {
-    // TODO Auto-generated method stub
+    Frame frame = (Frame) o;
+    int loopAddr,jumpEvalAddr;
+    Integer lastValue,controlVariable;
+    //Se busca el ultimo valor
+    lastValue = (Integer)ast.E.visit(this, frame);
+    emit(Machine.PUSHop, 0, 0, lastValue);//No se si deberia de tener ese last Value
+    //Asigno id con el valor de el primer limite
+    controlVariable = (Integer)ast.RVD.visit(this, frame);
+    emit(Machine.PUSHop, 0, 0, controlVariable);//Push de la variable de control
+    //Jump dummy
+    /////////////////No se como usarlo xd o que significa
+    //Ejecuto el comando 
+    loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
+    ast.C.visit(this, frame);
+    //Incrementa en 1 lo que esta en la pila
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    //Evaluacion de la condicion si varible de control en menor o igual al lastValue
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
+    //Salto a inicio de ciclo 
+    emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
+    //Saca los dos valores de la pila
+    emit(Machine.POPop, 0, 0, 2);
     return null;
   }
 
   @Override
   public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
-    // TODO Auto-generated method stub
+    Frame frame = (Frame) o;
+    int loopAddr,jumpEvalAddr;
+    Integer lastValue,controlVariable;
+    //Se busca el ultimo valor
+    lastValue = (Integer)ast.E2.visit(this, frame);
+    emit(Machine.PUSHop, 0, 0, lastValue);//No se si deberia de tener ese last Value
+    //Asigno id con el valor de el primer limite
+    controlVariable = (Integer)ast.RVD.visit(this, frame);
+    emit(Machine.PUSHop, 0, 0, controlVariable);//Push de la variable de control
+    //Jump dummy
+    /////////////////No se como usarlo xd o que significa
+    //Ejecuto el comando 
+    loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
+    //Evaluo la condicion de la expresion booleana
+    ast.E2.visit(this, frame);
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);//No estoy seguro de a donde saltar :c
+    ast.C.visit(this, frame);
+    //Incrementa en 1 lo que esta en la pila
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    //Evaluacion de la condicion si varible de control en menor o igual al lastValue
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
+    //Salto a inicio de ciclo 
+    emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
+    //Saca los dos valores de la pila
+    emit(Machine.POPop, 0, 0, 2);
     return null;
   }
 
   @Override
   public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
-    // TODO Auto-generated method stub
+    Frame frame = (Frame) o;
+    int loopAddr,jumpEvalAddr;
+    Integer lastValue,controlVariable;
+    //Se busca el ultimo valor
+    lastValue = (Integer)ast.E2.visit(this, frame);
+    emit(Machine.PUSHop, 0, 0, lastValue);//No se si deberia de tener ese last Value
+    //Asigno id con el valor de el primer limite
+    controlVariable = (Integer)ast.RVD.visit(this, frame);
+    emit(Machine.PUSHop, 0, 0, controlVariable);//Push de la variable de control
+    //Jump dummy
+    /////////////////No se como usarlo xd o que significa
+    //Ejecuto el comando 
+    loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
+    ast.E2.visit(this, frame);
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, 0);//No estoy seguro de a donde saltar :c
+    ast.C.visit(this, frame);
+    //Incrementa en 1 lo que esta en la pila
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    //Evaluacion de la condicion si varible de control en menor o igual al lastValue
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
+    //Salto a inicio de ciclo 
+    emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
+    //Saca los dos valores de la pila
+    emit(Machine.POPop, 0, 0, 2);
     return null;
   }
 
@@ -1247,8 +1315,13 @@ public final class Encoder implements Visitor {
 
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
-    // TODO Auto-generated method stub
-    return null;
+    Frame frame = (Frame) o;
+    int extraSize = 0;
+    int valSize = ((Integer) ast.E.visit(this, frame)).intValue();
+    ast.entity = new UnknownValue(valSize, frame.level, frame.size);
+    extraSize = valSize;
+    writeTableDetails(ast);
+    return new Integer(extraSize);
   }
 
 }
