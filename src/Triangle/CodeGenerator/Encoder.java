@@ -1061,7 +1061,8 @@ public final class Encoder implements Visitor {
     }
   }
 
-  /* Métodos visitantes para las nuevas estructuras sintácticas, se implementarán en el proyecto 3 (Austin) */
+  /* Visitor methods that generate TAM code for the additions to the Triangle language
+     that make up Traingle Ext (Austin) */
 
   /* Reserves space on the stack for the initialized variable by evaluating 
      the AST expression (Austin) */
@@ -1072,7 +1073,7 @@ public final class Encoder implements Visitor {
     Frame frame = (Frame) o;
     // evaluate[[E]]
     Integer valSize = (Integer) ast.E.visit(this, frame);
-    ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+    ast.entity = new KnownAddress(valSize, frame.level, frame.size);
     return new Integer(valSize);
   }
 
@@ -1175,30 +1176,6 @@ public final class Encoder implements Visitor {
     // Cleanup the storage allocated by the InVarDecl
     emit(Machine.POPop, 0, 0, controlVarData.declSize());
     return null;
-  }
-
-  public KnownAddress test (InVarDecl ast) {
-    KnownAddress addr = new KnownAddress(0, 0, 0);
-    SubscriptVname sv = (SubscriptVname)((VnameExpression) ast.E).V;
-    if (sv.V instanceof SubscriptVname) {
-      KnownAddress tmp = auxTest(sv);
-      return addr;
-    } else {
-      addr = (KnownAddress) ((SimpleVname)sv.V).I.decl.entity;
-      int index = Integer.valueOf(((IntegerExpression)sv.E).IL.spelling);
-      int valueSize = ((VnameExpression) ast.E).type.entity.size;
-      addr.address.displacement += index * valueSize;
-      return addr;
-    }
-  }
-
-  public KnownAddress auxTest(SubscriptVname ast) {
-    KnownAddress addr = new KnownAddress(0, 0, 0);
-    addr = (KnownAddress) ((SimpleVname)((SubscriptVname)(((VnameExpression)ast.E).V)).V).I.decl.entity;
-    int index = Integer.valueOf(((IntegerExpression)((SubscriptVname)(((VnameExpression)ast.E).V)).E).IL.spelling);
-    int valueSize = ((VnameExpression) ast.E).type.entity.size;
-    addr.address.displacement += index * valueSize;
-    return addr;
   }
 
   /* Generates TAM code to elaborate the declarations necessary for 
