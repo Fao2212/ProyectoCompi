@@ -1100,6 +1100,7 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  /* Generates TAM code for a [repeat do Com until Exp end] command (Fernando) */
   @Override
   public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
     Frame frame = (Frame) o;
@@ -1115,6 +1116,8 @@ public final class Encoder implements Visitor {
     return null;
   }
 
+  /* Generates TAM code for a [repeat do Com while Exp end] command (Fernando) */
+
   @Override
   public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
     Frame frame = (Frame) o;
@@ -1129,6 +1132,8 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);
     return null;
   }
+
+  /* Generates TAM code for a [repeat for Id := range Exp1 .. Exp2 do Com end] command (Fernando) */
 
   @Override
   public Object visitRepeatForRange(RepeatForRange ast, Object o) {
@@ -1165,6 +1170,9 @@ public final class Encoder implements Visitor {
     emit(Machine.POPop, 0, 0, 2);
     return null;
   }
+
+
+  /* Generates TAM code for a [repeat for Id := range Exp1 .. Exp2 while Exp3 do Com end] command (Fernando) */
 
   @Override
   public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
@@ -1211,7 +1219,8 @@ public final class Encoder implements Visitor {
     return null;
   }
 
-  //Range
+  /* Generates TAM code for a [repeat for Id := range Exp1 .. Exp2 until Exp3 do Com end] command (Fernando) */
+
   @Override
   public Object visitRepeatForRangeUntil(RepeatForRangeUntil ast, Object o) {
     Frame frame1 = (Frame) o;
