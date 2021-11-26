@@ -1077,18 +1077,26 @@ public final class Encoder implements Visitor {
     return new Integer(valSize);
   }
 
+  /* Generates TAM code for a [repeat until Exp do Com end] command (Fernando) */
   @Override
   public Object visitRepeatUntilCommand(UntilCommand ast, Object o) {
     Frame frame = (Frame) o;
     int jumpAddr, loopAddr;
 
-    jumpAddr = nextInstrAddr;//Salta a la siguiente instruccion
-    emit(Machine.JUMPop, 0, Machine.CBr, 0);//Salto dummy
-    loopAddr = nextInstrAddr;//Guarda la direccionl loop condicional
-    ast.C.visit(this, frame);//Ejecucion del comando
-    patch(jumpAddr, nextInstrAddr);//Guardado de la instruccion en pila de codigo
-    ast.E.visit(this, frame);//Evaluacion de la expresion
-    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);//Salto condicional si es un resultado falso
+    //Save address to the Jump condition = EvalCond label
+    jumpAddr = nextInstrAddr;
+    //Jumps to the evalCond before executing the command
+    emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    //--------Command execution-----------
+    //Saves the loop addres with the next instruction
+    loopAddr = nextInstrAddr;
+    ast.C.visit(this, frame);
+    //Patch the jump address to the EvalCondition
+    patch(jumpAddr, nextInstrAddr);
+    //Evaluate the Until Expression
+    ast.E.visit(this, frame);
+    //Jumps to loop addres if false
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);
     return null;
   }
 
@@ -1096,11 +1104,14 @@ public final class Encoder implements Visitor {
   public Object visitRepeatDoWhileCommand(DoWhileCommand ast, Object o) {
     Frame frame = (Frame) o;
     int loopAddr;
-
-    loopAddr = nextInstrAddr;//Guarda la direccionl loop condicional
-    ast.C.visit(this, frame);//Ejecucion del comando
-    ast.E.visit(this, frame);//Evaluacion de la expresion
-    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);//Salto condicional si es un resultado falso
+    //--------Command execution-----------
+    //Saves the loop addres with the next instruction
+    loopAddr = nextInstrAddr;
+    ast.C.visit(this, frame);
+    //Evaluate the While Expression
+    ast.E.visit(this, frame);
+    //Jumps to loop addres if true
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);
     return null;
   }
 
@@ -1108,72 +1119,94 @@ public final class Encoder implements Visitor {
   public Object visitRepeatDoUntilCommand(DoUntilCommand ast, Object o) {
     Frame frame = (Frame) o;
     int loopAddr;
-
-    loopAddr = nextInstrAddr;//Guarda la direccionl loop condicional
-    ast.C.visit(this, frame);//Ejecucion del comando
-    ast.E.visit(this, frame);//Evaluacion de la expresion
-    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);//Salto condicional si es un resultado falso
+    //--------Command execution-----------
+    //Saves the loop addres with the next instruction
+    loopAddr = nextInstrAddr;
+    ast.C.visit(this, frame);
+    //Evaluates the Until expression
+    ast.E.visit(this, frame);
+    //Jumps to loop addres if false
+    emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);
     return null;
   }
 
   @Override
   public Object visitRepeatForRange(RepeatForRange ast, Object o) {
-    Frame frame = (Frame) o;
+    Frame frame1 = (Frame) o;
     int loopAddr,jumpEvalAddr;
     Integer lastValue,controlVariable;
-    //Se busca el ultimo valor
-    lastValue = (Integer)ast.E.visit(this, frame);
-    //Asigno id con el valor de el primer limite
-    controlVariable = (Integer)ast.RVD.visit(this, frame);
-    //Jump dummy
-    /////////////////Evaluar si rvd es el sup
+    // elaborate [[ Id in Exp ]]
+    controlVariable = (Integer)ast.RVD.visit(this, frame1);
+    // get the top value of the range from the seccond expression
+    lastValue = (Integer)ast.E.visit(this, frame1);
+    Frame frame2 = new Frame(frame1,lastValue+controlVariable);
+    // This jump is used to evaluate de condition the first time before executing the command
     jumpEvalAddr = nextInstrAddr;
     emit(Machine.JUMPop, 0,Machine.CBr, 0);
-    //Ejecuto el comando 
+    //--------Command execution-----------
+    //Saves the loop addres with the next instruction
     loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
-    ast.C.visit(this, frame);
-    //Incrementa en 1 lo que esta en la pila
-    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    ast.C.visit(this, frame2);
+   //Loads to the top of the sttack the saved pos at ST[-2]
+    emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);
+    //Increase the top of the stack
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
+    //Store in ST[-3] the top of the stack (increased controlVariable)
+    emit(Machine.STOREop,Machine.integerSize,Machine.STr,-3*Machine.integerSize);
+    //Patch the value of the first jump to the EvalCond
     patch(jumpEvalAddr, nextInstrAddr);
-    //Evaluacion de la condicion si varible de control en menor o igual al lastValue
-    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);//Por como se orenan los parametros al hacer la op
-    //Salto a inicio de ciclo 
+    //Makes a copy of the 2 stored integer in stack loading them
+    emit(Machine.LOADop, 2* Machine.integerSize, Machine.STr, -2* Machine.integerSize);
+    //Does a less or equal comparation and store the resulting value in the stack top
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
+    //Jump to loopAddr to continue the cycle
     emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
-    //Saca los dos valores de la pila
-    emit(Machine.POPop, 0, 0, 2*Machine.integerSize);//Mantiene por el tamano de un entero en TAM
+    //Pop all values from stack
+    emit(Machine.POPop, 0, 0, 2);
     return null;
   }
 
   @Override
   public Object visitRepeatForRangeWhile(RepeatForRangeWhile ast, Object o) {
-    Frame frame = (Frame) o;
-    int loopAddr,jumpEvalAddr,whileAddr;
+    Frame frame1 = (Frame) o;
+    int loopAddr,jumpEvalAddr,whileAddr,whileCondSize;
     Integer lastValue,controlVariable;
-    //Se busca el ultimo valor
-    lastValue = (Integer)ast.E2.visit(this, frame);
-    //Asigno id con el valor de el primer limite
-    controlVariable = (Integer)ast.RVD.visit(this, frame);
-
-    //Jump dummy
+    // elaborate [[ Id in Exp ]]
+    controlVariable = (Integer)ast.RVD.visit(this, frame1);
+    // get the top value of the range from the seccond expression
+    lastValue = (Integer)ast.E1.visit(this, frame1);
+    Frame frame2 = new Frame(frame1,lastValue+controlVariable);
+    // This jump is used to evaluate de condition the first time before executing the command
     jumpEvalAddr = nextInstrAddr;
     emit(Machine.JUMPop, 0,Machine.CBr, 0);
-    //Ejecuto el comando 
-
-    loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
-    //Evaluo la condicion de la expresion booleana
-    ast.E2.visit(this, frame);
+    //--------Command execution-----------
+    //Saves the loop addres with the next instruction
+    loopAddr = nextInstrAddr;
+    //Evaluate the while expression
+    whileCondSize = (Integer)ast.E2.visit(this, frame2);
+    //Saves while address for later patching = Exit label
     whileAddr = nextInstrAddr;
+    //Jump to exit if while E2 evaluation is true 
     emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, 0);
-    ast.C.visit(this, frame);
-    //Incrementa en 1 lo que esta en la pila
-    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    Frame frame3 = new Frame(frame2,whileCondSize);
+    ast.C.visit(this, frame3);
+    //Loads to the top of the sttack the saved pos at ST[-2]
+    emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);
+    //Increase the top of the stack
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
+    //Store in ST[-3] the top of the stack (increased controlVariable)
+    emit(Machine.STOREop,Machine.integerSize,Machine.STr,-3*Machine.integerSize);
+    //Patch the value of the first jump to the EvalCond
     patch(jumpEvalAddr, nextInstrAddr);
-    //Evaluacion de la condicion si varible de control en menor o igual al lastValue
+    //Makes a copy of the 2 stored integer in stack loading them
+    emit(Machine.LOADop, 2* Machine.integerSize, Machine.STr, -2* Machine.integerSize);
+    //Does a less or equal comparation and store the resulting value in the stack top
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
-    //Salto a inicio de ciclo 
+    //Jump to loopAddr to continue the cycle
     emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
-    //Saca los dos valores de la pila
+    //Patch the whileAddress to the exit of the cycle
     patch(whileAddr, nextInstrAddr);
+    //Pop all values from stack
     emit(Machine.POPop, 0, 0, 2);
     return null;
   }
@@ -1184,33 +1217,42 @@ public final class Encoder implements Visitor {
     Frame frame1 = (Frame) o;
     int loopAddr,jumpEvalAddr,untilAddr,untilCondSize;
     Integer lastValue,controlVariable;
-    //Asigno id con el valor de el primer limite
+    // elaborate [[ Id in Exp ]]
     controlVariable = (Integer)ast.RVD.visit(this, frame1);
-     //Se busca el ultimo valor
+    // get the top value of the range from the seccond expression
     lastValue = (Integer)ast.E1.visit(this, frame1);
     Frame frame2 = new Frame(frame1,lastValue+controlVariable);
-    //Jump dummy
-    jumpEvalAddr = nextInstrAddr;
+    // This jump is used to evaluate de condition the first time before executing the command
+    jumpEvalAddr = nextInstrAddr;//Saves value in jumpEval for later patch = Jump to EvalCond Label
     emit(Machine.JUMPop, 0,Machine.CBr, 0);
-    //Ejecuto el comando 
-    loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
+    //--------Command execution-----------
+    //Saves the loop addres with the next instruction
+    loopAddr = nextInstrAddr;
+    //Evaluate the until expression
     untilCondSize = (Integer)ast.E2.visit(this, frame2);
+    //Saves until address for later patching = Exit label
     untilAddr = nextInstrAddr;
-    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);//No estoy seguro de a donde saltar :c
+    //Jump to exit if until E2 evaluation is true 
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);
     Frame frame3 = new Frame(frame2,untilCondSize);
     ast.C.visit(this, frame3);
-    //Incrementa en 1 lo que esta en la pila
-    emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);//Carga 2 atras en el stack
-    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);//Revisar ese displacement
+    //Loads to the top of the sttack the saved pos at ST[-2]
+    emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);
+    //Increase the top of the stack
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
+    //Store in ST[-3] the top of the stack (increased controlVariable)
     emit(Machine.STOREop,Machine.integerSize,Machine.STr,-3*Machine.integerSize);
+    //Patch the value of the first jump to the EvalCond
     patch(jumpEvalAddr, nextInstrAddr);
-    //Evaluacion de la condicion si varible de control en menor o igual al lastValue
-    emit(Machine.LOADop, 2* Machine.integerSize, Machine.STr, -2* Machine.integerSize);//Se hace una copia de los elementos de la pila
+    //Makes a copy of the 2 stored integer in stack loading them
+    emit(Machine.LOADop, 2* Machine.integerSize, Machine.STr, -2* Machine.integerSize);
+    //Does a less or equal comparation and store the resulting value in the stack top
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
-    //Salto a inicio de ciclo 
+    //Jump to loopAddr to continue the cycle
     emit(Machine.JUMPIFop,Machine.trueRep,Machine.CBr,loopAddr);
-    //Saca los dos valores de la pila
+    //Patch the untilAddress to the exit of the cycle
     patch(untilAddr, nextInstrAddr);
+    //Pop all values from stack
     emit(Machine.POPop, 0, 0, 2);
     return null;
   }
