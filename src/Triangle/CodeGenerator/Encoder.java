@@ -1390,6 +1390,7 @@ public final class Encoder implements Visitor {
     return new Integer(privateDeclSize + publicDeclSize);
   }
 
+  //Method to obtain the Exp1 Value in a For Range Command(Fernando)
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
     Frame frame = (Frame) o;
