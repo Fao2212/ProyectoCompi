@@ -1395,8 +1395,9 @@ public final class Encoder implements Visitor {
 
         // Loads the first element displacement
         encodeFetchValueAddress((Vname)((VnameExpression)ast.E).V, frame, arraySize);
-      }   
-      arraySize = 0;  // To show the propper amount of space stored on the stack
+      }
+      // To adjust the amount of words stored onto the stack after the declaration
+      arraySize = 0;  
     } 
     else {
        // Loads the max displacement for the array
