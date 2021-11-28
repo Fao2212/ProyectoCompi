@@ -1367,9 +1367,15 @@ public final class Encoder implements Visitor {
 
     // elaborate Id 
     elemSize = (Integer) ast.T.visit(this, frame); 
-    emit(Machine.PUSHop, 0, 0, elemSize); 
-    ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
-
+    if (ast.E instanceof VnameExpression) {
+      emit(Machine.POPop, 0, 0, arraySize); // The array is not needed in memory if accesed through a vname
+      emit(Machine.PUSHop, 0, 0, elemSize); 
+      ast.entity = new KnownAddress(elemSize, frame.level, frame.size);
+    } else {
+      emit(Machine.PUSHop, 0, 0, elemSize); 
+      ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
+    }
+    
     if (ast.E instanceof VnameExpression) {
       if ( ((VnameExpression) ast.E).V.variable ) {
         // Loads the max displacement for the array
@@ -1390,6 +1396,7 @@ public final class Encoder implements Visitor {
         // Loads the first element displacement
         encodeFetchValueAddress((Vname)((VnameExpression)ast.E).V, frame, arraySize);
       }   
+      arraySize = 0;  // To show the propper amount of space stored on the stack
     } 
     else {
        // Loads the max displacement for the array
