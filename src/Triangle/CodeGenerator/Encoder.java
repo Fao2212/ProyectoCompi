@@ -18,7 +18,6 @@ import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import TAM.Instruction;
 import TAM.Machine;
@@ -92,7 +91,6 @@ import Triangle.AbstractSyntaxTrees.SingleFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.SingleRecordAggregate;
 import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
-import Triangle.AbstractSyntaxTrees.TypeDenoter;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
 import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.UntilCommand;
@@ -104,7 +102,6 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
-import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public final class Encoder implements Visitor {
 
@@ -1061,6 +1058,48 @@ public final class Encoder implements Visitor {
     }
   }
 
+  private void encodeFetchValueAddress(Vname V, Frame frame, int valSize) {
+
+    RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
+    // If indexed = true, code will have been generated to load an index value.
+    if (valSize > 255) {
+      reporter.reportRestriction("can't load values larger than 255 words");
+      valSize = 255; // to allow code generation to continue
+    }
+    if ((baseObject instanceof UnknownValue) ||
+        (baseObject instanceof KnownAddress)) {
+      ObjectAddress address = (baseObject instanceof UnknownValue) ?
+                              ((UnknownValue) baseObject).address :
+                              ((KnownAddress) baseObject).address;
+      if (V.indexed) {
+        emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
+             address.displacement + V.offset);
+        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+        // emit(Machine.LOADIop, valSize, 0, 0);
+      } else
+        emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
+        address.displacement + V.offset);
+    } else if (baseObject instanceof UnknownAddress) {
+      ObjectAddress address = ((UnknownAddress) baseObject).address;
+      emit(Machine.LOADop, Machine.addressSize, displayRegister(frame.level,
+           address.level), address.displacement);
+      if (V.indexed) {
+        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+      }
+      if (V.offset != 0) {
+        emit(Machine.LOADLop, 0, 0, V.offset);
+        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+      }
+      // emit(Machine.LOADIop, valSize, 0, 0);
+    }
+  }
+
+
+
+
+
+
+
   /* Visitor methods that generate TAM code for the additions to the Triangle language
      that make up Traingle Ext (Austin) */
 
@@ -1152,7 +1191,7 @@ public final class Encoder implements Visitor {
     //Saves the loop addres with the next instruction
     loopAddr = nextInstrAddr;//Guarda la pos a la que debe volver
     ast.C.visit(this, frame2);
-   //Loads to the top of the sttack the saved pos at ST[-2]
+    //Loads to the top of the sttack the saved pos at ST[-2]
     emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);
     //Increase the top of the stack
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
@@ -1198,7 +1237,7 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, 0);
     Frame frame3 = new Frame(frame2,whileCondSize);
     ast.C.visit(this, frame3);
-    //Loads to the top of the sttack the saved pos at ST[-2]
+    //Loads to the top of the sttack the saved pos at -2[ST]
     emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);
     //Increase the top of the stack
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
@@ -1245,7 +1284,7 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, 0);
     Frame frame3 = new Frame(frame2,untilCondSize);
     ast.C.visit(this, frame3);
-    //Loads to the top of the sttack the saved pos at ST[-2]
+    //Loads to the top of the sttack the saved pos at -2[ST]
     emit(Machine.LOADop,Machine.integerSize,Machine.STr,-2*Machine.integerSize);
     //Increase the top of the stack
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
@@ -1279,10 +1318,10 @@ public final class Encoder implements Visitor {
     // -------------------- COMMAND SECTION ---------------------
     Frame frame1 = new Frame (frame.level, controlVarData.declSize());
     jumpEvalAddr = nextInstrAddr;
-    emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    // emit(Machine.JUMPop, 0, Machine.CBr, 0);
     commandAddr = nextInstrAddr;
 
-    // Update de control variable for the loop
+    // Update the control variable for the loop
     emit(Machine.LOADop, Machine.addressSize, Machine.STr, -Machine.addressSize);    
     emit(Machine.LOADIop, controlVarData.ctrlVarSize, 0, 0);     
     emit(Machine.STOREop, controlVarData.ctrlVarSize, Machine.STr, -(2*Machine.addressSize + 2*controlVarData.ctrlVarSize)); 
@@ -1292,13 +1331,13 @@ public final class Encoder implements Visitor {
 
     // --------------- CONDITION EVALUATION SECTION ----------------
 
-    // Update current array element displacement
+    // Update the current array element displacement
     emit(Machine.LOADLop, 0, 0, controlVarData.ctrlVarSize);
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
     // Patch the jump instruction to the evaluation section
-    evalAddr = nextInstrAddr;
-    patch(jumpEvalAddr, evalAddr);
+    // evalAddr = nextInstrAddr;
+    // patch(jumpEvalAddr, evalAddr);
 
     // Check if the loop has ended or not
     emit(Machine.LOADop, 2*Machine.addressSize, Machine.STr, -(2*Machine.addressSize));
@@ -1321,7 +1360,10 @@ public final class Encoder implements Visitor {
 
     // evaluate Exp
     arraySize = ((Integer) ast.E.visit(this, frame)); // Returns the size of the array expression
-    ast.E.entity = new KnownAddress(arraySize, frame.level, frame.size);
+    
+    if (! (ast.E instanceof VnameExpression) ){
+      ast.E.entity = new UnknownValue(arraySize, frame.level, frame.size);
+    }
 
     // elaborate Id 
     elemSize = (Integer) ast.T.visit(this, frame); 
@@ -1329,24 +1371,36 @@ public final class Encoder implements Visitor {
     ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
 
     if (ast.E instanceof VnameExpression) {
-      // Loads the max displacement for the array
-      encodeFetchAddress(((VnameExpression) ast.E).V, frame);
-      emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
-      emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+      if ( ((VnameExpression) ast.E).V.variable ) {
+        // Loads the max displacement for the array
+        encodeFetchAddress(((VnameExpression) ast.E).V, frame);
+        emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
-      // Loads the first element displacement
-      encodeFetchAddress(((VnameExpression) ast.E).V, frame);     
+        // Loads the first element displacement
+        encodeFetchAddress(((VnameExpression) ast.E).V, frame);
+      } 
+      else {
+
+        // Loads the max displacement for the array
+        encodeFetchValueAddress((Vname)((VnameExpression)ast.E).V, frame, arraySize);
+        emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+
+        // Loads the first element displacement
+        encodeFetchValueAddress((Vname)((VnameExpression)ast.E).V, frame, arraySize);
+      }   
     } 
     else {
        // Loads the max displacement for the array
       emit(Machine.LOADAop, 0, 
-      displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-      ((KnownAddress)ast.E.entity).address.displacement + (arraySize-elemSize));
+      displayRegister(frame.level, ((UnknownValue)ast.E.entity).address.level), 
+      ((UnknownValue)ast.E.entity).address.displacement + (arraySize-elemSize));
 
       // Loads the first element displacement
       emit(Machine.LOADAop, 0, 
-      displayRegister(frame.level, ((KnownAddress)ast.E.entity).address.level), 
-      ((KnownAddress)ast.E.entity).address.displacement);
+      displayRegister(frame.level, ((UnknownValue)ast.E.entity).address.level), 
+      ((UnknownValue)ast.E.entity).address.displacement);
     }
 
     // Returns a pair with the size of the array and the size of the array element type
@@ -1390,7 +1444,7 @@ public final class Encoder implements Visitor {
     return new Integer(privateDeclSize + publicDeclSize);
   }
 
-  //Method to obtain the Exp1 Value in a For Range Command(Fernando)
+  // Method to obtain the Exp1 Value in a For Range Command(Fernando)
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
     Frame frame = (Frame) o;
