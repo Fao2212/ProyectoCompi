@@ -1316,7 +1316,7 @@ public final class Encoder implements Visitor {
     controlVarData = (InVarDeclData) ast.IVD.visit(this, frame);
 
     // -------------------- COMMAND SECTION ---------------------
-    Frame frame1 = new Frame (frame.level, controlVarData.declSize());
+    Frame frame1 = new Frame (frame, controlVarData.declSize());
     jumpEvalAddr = nextInstrAddr;
     // emit(Machine.JUMPop, 0, Machine.CBr, 0);
     commandAddr = nextInstrAddr;
@@ -1448,12 +1448,10 @@ public final class Encoder implements Visitor {
   @Override
   public Object visitRangeVarDecl(RangeVarDecl ast, Object o) {
     Frame frame = (Frame) o;
-    int extraSize = 0;
     int valSize = ((Integer) ast.E.visit(this, frame)).intValue();
     ast.entity = new KnownAddress(valSize, frame.level, frame.size);
-    extraSize = valSize;
     writeTableDetails(ast);
-    return new Integer(extraSize);
+    return new Integer(valSize);
   }
 
 }
