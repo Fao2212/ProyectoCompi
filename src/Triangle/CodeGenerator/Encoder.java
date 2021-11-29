@@ -1039,8 +1039,12 @@ public final class Encoder implements Visitor {
 
     RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
     // If indexed = true, code will have been generated to load an index value.
-    if (baseObject instanceof KnownAddress) {
-      ObjectAddress address = ((KnownAddress) baseObject).address;
+    if ((baseObject instanceof UnknownValue) ||
+        (baseObject instanceof KnownAddress)) {
+      ObjectAddress address = (baseObject instanceof UnknownValue) ?
+                              ((UnknownValue) baseObject).address :
+                              ((KnownAddress) baseObject).address;
+      // ObjectAddress address = ((KnownAddress) baseObject).address;
       emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
            address.displacement + V.offset);
       if (V.indexed)
@@ -1058,14 +1062,11 @@ public final class Encoder implements Visitor {
     }
   }
 
+  // 
   private void encodeFetchValueAddress(Vname V, Frame frame, int valSize) {
 
     RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
     // If indexed = true, code will have been generated to load an index value.
-    if (valSize > 255) {
-      reporter.reportRestriction("can't load values larger than 255 words");
-      valSize = 255; // to allow code generation to continue
-    }
     if ((baseObject instanceof UnknownValue) ||
         (baseObject instanceof KnownAddress)) {
       ObjectAddress address = (baseObject instanceof UnknownValue) ?
@@ -1075,7 +1076,6 @@ public final class Encoder implements Visitor {
         emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
              address.displacement + V.offset);
         emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
-        // emit(Machine.LOADIop, valSize, 0, 0);
       } else
         emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
         address.displacement + V.offset);
@@ -1090,7 +1090,6 @@ public final class Encoder implements Visitor {
         emit(Machine.LOADLop, 0, 0, V.offset);
         emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
       }
-      // emit(Machine.LOADIop, valSize, 0, 0);
     }
   }
 
@@ -1305,20 +1304,19 @@ public final class Encoder implements Visitor {
     return null;
   }
 
-  /* Generates TAM code for a [repeat for Id in Exp do Com end] command (Austin) */
+  /* Generates TAM code that creates the loop in a 
+     [repeat for Id in Exp do Com end] command (Austin) */
   @Override
   public Object visitRepeatIn(RepeatIn ast, Object o) {
     Frame frame = (Frame) o;
     InVarDeclData controlVarData;
-    int jumpEvalAddr, commandAddr, evalAddr;
+    int commandAddr;
 
     // elaborate [[ Id in Exp ]]
     controlVarData = (InVarDeclData) ast.IVD.visit(this, frame);
 
     // -------------------- COMMAND SECTION ---------------------
     Frame frame1 = new Frame (frame, controlVarData.declSize());
-    jumpEvalAddr = nextInstrAddr;
-    // emit(Machine.JUMPop, 0, Machine.CBr, 0);
     commandAddr = nextInstrAddr;
 
     // Update the control variable for the loop
@@ -1335,10 +1333,6 @@ public final class Encoder implements Visitor {
     emit(Machine.LOADLop, 0, 0, controlVarData.ctrlVarSize);
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
-    // Patch the jump instruction to the evaluation section
-    // evalAddr = nextInstrAddr;
-    // patch(jumpEvalAddr, evalAddr);
-
     // Check if the loop has ended or not
     emit(Machine.LOADop, 2*Machine.addressSize, Machine.STr, -(2*Machine.addressSize));
     emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);
@@ -1349,63 +1343,57 @@ public final class Encoder implements Visitor {
     return null;
   }
 
-  /* Generates TAM code to elaborate the declarations necessary for 
-     a [repeat for Id in Exp do Com end] command (Austin) */
+  /* Generates TAM code to elaborate the control variable declaration
+     and to set up the array's origin and max displacement 
+     to know the boundaries for the [repeat for Id in Exp do Com end] 
+     loop command (Austin) */
   @Override
   public Object visitInVarDecl(InVarDecl ast, Object o) {
+    // elaborate [ Id in Exp ]
 
-    // elaborate [[ Id in Exp ]]
     Frame frame = (Frame) o;
     Integer arraySize, elemSize;
 
-    // evaluate Exp
+    // evaluate [Exp]
     arraySize = ((Integer) ast.E.visit(this, frame)); // Returns the size of the array expression
     
-    if (! (ast.E instanceof VnameExpression) ){
-      ast.E.entity = new UnknownValue(arraySize, frame.level, frame.size);
-    }
-
-    // elaborate Id 
+    // The array element size is obtained
     elemSize = (Integer) ast.T.visit(this, frame); 
-    if (ast.E instanceof VnameExpression) {
-      emit(Machine.POPop, 0, 0, arraySize); // The array is not needed in memory if accesed through a vname
+    
+    if (ast.E instanceof VnameExpression) { // Array is a constant or variable vname
+
+      // The array expression is not needed in memory if accesed through a vname
+      emit(Machine.POPop, 0, 0, arraySize); 
+      
+      // elaborate [Id]
       emit(Machine.PUSHop, 0, 0, elemSize); 
       ast.entity = new KnownAddress(elemSize, frame.level, frame.size);
-    } else {
+
+      // Loads the max displacement for the array
+      encodeFetchAddress(((VnameExpression) ast.E).V, frame);
+      emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+      emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
+
+      // Loads the first element displacement of the array
+      encodeFetchAddress(((VnameExpression) ast.E).V, frame);
+
+      // The array size is cleared to take into account that it was popped out of the stack
+      arraySize = 0;
+    } 
+    else { // Array is a literal expression
+      // The array literal expression is decorated with its entity description
+      ast.E.entity = new UnknownValue(arraySize, frame.level, frame.size);
+
+      // elaborate Id
       emit(Machine.PUSHop, 0, 0, elemSize); 
       ast.entity = new KnownAddress(elemSize, frame.level, frame.size + arraySize);
-    }
-    
-    if (ast.E instanceof VnameExpression) {
-      if ( ((VnameExpression) ast.E).V.variable ) {
-        // Loads the max displacement for the array
-        encodeFetchAddress(((VnameExpression) ast.E).V, frame);
-        emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
-        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
 
-        // Loads the first element displacement
-        encodeFetchAddress(((VnameExpression) ast.E).V, frame);
-      } 
-      else {
-
-        // Loads the max displacement for the array
-        encodeFetchValueAddress((Vname)((VnameExpression)ast.E).V, frame, arraySize);
-        emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
-        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
-
-        // Loads the first element displacement
-        encodeFetchValueAddress((Vname)((VnameExpression)ast.E).V, frame, arraySize);
-      }
-      // To adjust the amount of words stored onto the stack after the declaration
-      arraySize = 0;  
-    } 
-    else {
        // Loads the max displacement for the array
       emit(Machine.LOADAop, 0, 
       displayRegister(frame.level, ((UnknownValue)ast.E.entity).address.level), 
       ((UnknownValue)ast.E.entity).address.displacement + (arraySize-elemSize));
 
-      // Loads the first element displacement
+      // Loads the first element displacement of the array
       emit(Machine.LOADAop, 0, 
       displayRegister(frame.level, ((UnknownValue)ast.E.entity).address.level), 
       ((UnknownValue)ast.E.entity).address.displacement);
