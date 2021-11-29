@@ -1029,7 +1029,8 @@ public final class Encoder implements Visitor {
     }
   }
 
-  // Generates code to compute and push the address of a named variable.
+  // Generates code to compute and push the address of a named variable or constant
+  // (evaluated at runtime).
   // vname is the program phrase that names this variable.
   // currentLevel is the routine level where the vname occurs.
   // frameSize is the anticipated size of the local stack frame when
@@ -1039,12 +1040,13 @@ public final class Encoder implements Visitor {
 
     RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
     // If indexed = true, code will have been generated to load an index value.
-    if ((baseObject instanceof UnknownValue) ||
+
+    // The option to get the address from an UnknownValue was added (Austin)
+    if ((baseObject instanceof UnknownValue) || 
         (baseObject instanceof KnownAddress)) {
       ObjectAddress address = (baseObject instanceof UnknownValue) ?
                               ((UnknownValue) baseObject).address :
                               ((KnownAddress) baseObject).address;
-      // ObjectAddress address = ((KnownAddress) baseObject).address;
       emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
            address.displacement + V.offset);
       if (V.indexed)
@@ -1061,43 +1063,6 @@ public final class Encoder implements Visitor {
       }
     }
   }
-
-  // 
-  private void encodeFetchValueAddress(Vname V, Frame frame, int valSize) {
-
-    RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
-    // If indexed = true, code will have been generated to load an index value.
-    if ((baseObject instanceof UnknownValue) ||
-        (baseObject instanceof KnownAddress)) {
-      ObjectAddress address = (baseObject instanceof UnknownValue) ?
-                              ((UnknownValue) baseObject).address :
-                              ((KnownAddress) baseObject).address;
-      if (V.indexed) {
-        emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
-             address.displacement + V.offset);
-        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
-      } else
-        emit(Machine.LOADAop, 0, displayRegister(frame.level, address.level),
-        address.displacement + V.offset);
-    } else if (baseObject instanceof UnknownAddress) {
-      ObjectAddress address = ((UnknownAddress) baseObject).address;
-      emit(Machine.LOADop, Machine.addressSize, displayRegister(frame.level,
-           address.level), address.displacement);
-      if (V.indexed) {
-        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
-      }
-      if (V.offset != 0) {
-        emit(Machine.LOADLop, 0, 0, V.offset);
-        emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
-      }
-    }
-  }
-
-
-
-
-
-
 
   /* Visitor methods that generate TAM code for the additions to the Triangle language
      that make up Traingle Ext (Austin) */
