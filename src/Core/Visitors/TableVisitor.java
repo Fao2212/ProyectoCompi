@@ -107,10 +107,10 @@ public class TableVisitor implements Visitor {
   // <editor-fold defaultstate="collapsed" desc=" Commands ">
   // Commands
   public Object visitAssignCommand(AssignCommand ast, Object o) { 
-      ast.V.visit(this, null);
-      ast.E.visit(this, null);
-      
-      return(null);
+    ast.V.visit(this, null);
+    ast.E.visit(this, null);
+
+    return(null);
   }
   
   public Object visitCallCommand(CallCommand ast, Object o) { 
@@ -685,7 +685,7 @@ public class TableVisitor implements Visitor {
       return(null);
   }
   
-  public Object visitIdentifier(Identifier ast, Object o) {             
+  public Object visitIdentifier(Identifier ast, Object o) { 
       return(null);
   }
   
@@ -737,18 +737,12 @@ public class TableVisitor implements Visitor {
     private void addIdentifier(String name, String type, int size, int level, int displacement, int value) {
         boolean exists = false;
         
-        for (int i=0;(i<model.getRowCount() && !exists);i++)
-            if (((String)model.getValueAt(i, 0)).compareTo(name) == 0)
-                exists = true;
-        
-        if (!exists) {
-            model.addRow(new String[] {name, 
+        model.addRow(new String[] {name, 
                     type, 
                     String.valueOf(size), 
                     (level<0?" ":String.valueOf(level)), 
                     (displacement<0?" ":String.valueOf(displacement)), 
                     (value<0?" ":String.valueOf(value))});
-        }
     }
     
     
