@@ -730,31 +730,30 @@ public final class Encoder implements Visitor {
   public Object visitSubscriptVname(SubscriptVname ast, Object o) {
     Frame frame = (Frame) o;
     RuntimeEntity baseObject;
-    int elemSize, indexSize;
+    int elemSize, indexSize, arraySize;
 
     baseObject = (RuntimeEntity) ast.V.visit(this, frame);
     ast.offset = ast.V.offset;
     ast.indexed = ast.V.indexed;
     elemSize = ((Integer) ast.type.visit(this, null)).intValue();
+    arraySize = (Integer) ast.V.type.entity.size;
+    
     if (ast.E instanceof IntegerExpression) {
       IntegerLiteral IL = ((IntegerExpression) ast.E).IL;
       ast.offset = ast.offset + Integer.parseInt(IL.spelling) * elemSize;
 
       // Check if the index is valid (Austin)
       emit(Machine.LOADLop, 0, 0, 0);
-      emit(Machine.LOADLop, 0, 0, baseObject.size);
-      emit(Machine.LOADLop, 0, 0, Integer.parseInt(IL.spelling));
+      emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+      emit(Machine.LOADLop, 0, 0, Integer.parseInt(IL.spelling)*elemSize);
       emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.icDisplacement);
 
     } else {
+
       // v-name is indexed by a proper expression, not a literal
       if (ast.indexed)
         frame.size = frame.size + Machine.integerSize;
       indexSize = ((Integer) ast.E.visit(this, frame)).intValue();
-
-      // Load array min and max index to validate the index (Austin)
-      emit(Machine.LOADLop, 0, 0, 0);
-      emit(Machine.LOADLop, 0, 0, baseObject.size);
     
       if (elemSize != 1) {
         emit(Machine.LOADLop, 0, 0, elemSize);
@@ -767,6 +766,9 @@ public final class Encoder implements Visitor {
         ast.indexed = true;
       
       // Check if the index is valid (Austin)
+      emit(Machine.LOADLop, 0, 0, 0);
+      emit(Machine.LOADLop, 0, 0, arraySize-elemSize);
+      emit(Machine.LOADop, Machine.integerSize, Machine.STr, -3*Machine.integerSize);    
       emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.icDisplacement);
       
     }

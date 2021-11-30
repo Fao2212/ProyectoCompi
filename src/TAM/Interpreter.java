@@ -207,7 +207,7 @@ public class Interpreter {
         System.out.println("Program has failed due to an IO error.");
         break;
       case failedIndexOutOfBounds:
-        System.out.println("Program failed due to an attempt to access an array element with in index out of bounds.");
+        System.out.println("Program has failed due to an attempt to access an array element with an index out of bounds.");
     }
     if (status != halted)
       dump();
@@ -431,11 +431,10 @@ public class Interpreter {
         ST = ST - 1; // no action taken at present
         break;
       case Machine.icDisplacement: // The idxcheck primitive is added (Austin)
-        // data[ST - 3] = toInt();
-        if (!(data[ST-3] <= data[ST-1] && data[ST-1] <= data[ST-2])) {
-          status = failedIndexOutOfBounds;
-        }
         ST = ST - 3;
+        if (!(data[ST] <= data[ST+2] && data[ST+2] <= data[ST+1])) {
+          status = failedIndexOutOfBounds;
+        }   
         break;
     }
   }
