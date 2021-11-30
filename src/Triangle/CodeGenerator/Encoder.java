@@ -739,11 +739,23 @@ public final class Encoder implements Visitor {
     if (ast.E instanceof IntegerExpression) {
       IntegerLiteral IL = ((IntegerExpression) ast.E).IL;
       ast.offset = ast.offset + Integer.parseInt(IL.spelling) * elemSize;
+
+      // Check if the index is valid (Austin)
+      emit(Machine.LOADLop, 0, 0, 0);
+      emit(Machine.LOADLop, 0, 0, baseObject.size);
+      emit(Machine.LOADLop, 0, 0, Integer.parseInt(IL.spelling));
+      emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.icDisplacement);
+
     } else {
       // v-name is indexed by a proper expression, not a literal
       if (ast.indexed)
         frame.size = frame.size + Machine.integerSize;
       indexSize = ((Integer) ast.E.visit(this, frame)).intValue();
+
+      // Load array min and max index to validate the index (Austin)
+      emit(Machine.LOADLop, 0, 0, 0);
+      emit(Machine.LOADLop, 0, 0, baseObject.size);
+    
       if (elemSize != 1) {
         emit(Machine.LOADLop, 0, 0, elemSize);
         emit(Machine.CALLop, Machine.SBr, Machine.PBr,
@@ -753,6 +765,10 @@ public final class Encoder implements Visitor {
         emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.addDisplacement);
       else
         ast.indexed = true;
+      
+      // Check if the index is valid (Austin)
+      emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.icDisplacement);
+      
     }
     return baseObject;
   }
