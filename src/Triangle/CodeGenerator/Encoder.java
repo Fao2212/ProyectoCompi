@@ -655,24 +655,28 @@ public final class Encoder implements Visitor {
       emit(Machine.CALLop, Machine.SBr, Machine.PBr, displacement);
     } else if (ast.decl instanceof ProcDeclaration && ast.decl.entity == null) {
 
-      /* The current frame level and code address (PatchData) are pushed to the declaration's patch waiting queue
-         so that the call command to the yet unknown function or declaration is patched when the entry point to it
-         is known (Austin) */
+      /* The current frame level and code address (PatchData) are pushed to 
+         the declaration's patch waiting queue so that the call command to 
+         the yet unknown function or declaration is patched when the entry 
+         point to it is known (Austin) */
       ( (ProcDeclaration) ast.decl).pushToPatchQueue(new PatchData(frame.level, nextInstrAddr));
 
-      /* A dummy call is made, it must be patched later with the entry point data of the function or declaration 
-         that is declared further ahead in the code (Austin) */
+      /* A dummy call is made, it must be patched later with the entry point 
+         data of the function or declaration that is declared further ahead 
+         in the code (Austin) */
       emit(Machine.CALLop, 0, Machine.CBr, 0);
 
     } else if (ast.decl instanceof FuncDeclaration && ast.decl.entity == null) {
 
-      /* The current frame level and code address (PatchData) are pushed to the declaration's patch waiting queue
-         so that the call command to the yet unknown function or declaration is patched when the entry point to it
-         is known (Austin) */
+      /* The current frame level and code address (PatchData) are pushed to 
+         the declaration's patch waiting queue so that the call command to 
+         the yet unknown function or declaration is patched when the entry 
+         point to it is known (Austin) */
       ( (FuncDeclaration) ast.decl).pushToPatchQueue(new PatchData(frame.level, nextInstrAddr));
 
-      /* A dummy call is made, it must be patched later with the entry point data of the function or declaration 
-         that is declared further ahead in the code (Austin) */
+      /* A dummy call is made, it must be patched later with the entry point 
+         data of the function or declaration that is declared further ahead 
+         in the code (Austin) */
       emit(Machine.CALLop, 0, Machine.CBr, 0);
 
     }

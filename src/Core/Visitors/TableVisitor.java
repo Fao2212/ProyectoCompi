@@ -412,7 +412,7 @@ public class TableVisitor implements Visitor {
     try {
     addIdentifier(ast.I.spelling, 
             "KnownAddress", 
-            (ast.entity!=null?ast.entity.size:0), 
+            (ast.entity!=null?ast.entity.size: 0), 
             ((KnownAddress)ast.entity).address.level, 
             ((KnownAddress)ast.entity).address.displacement, 
             -1);
