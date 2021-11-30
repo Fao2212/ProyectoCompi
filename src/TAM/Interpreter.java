@@ -44,7 +44,7 @@ public class Interpreter {
   final static int
     running = 0, halted = 1, failedDataStoreFull = 2, failedInvalidCodeAddress = 3,
     failedInvalidInstruction = 4, failedOverflow = 5, failedZeroDivide = 6,
-    failedIOError = 7;
+    failedIOError = 7, failedIndexOutOfBounds = 8; // The status error for idxcheck failure was added (Austin)
 
   static long
     accumulator;
@@ -206,6 +206,8 @@ public class Interpreter {
       case failedIOError:
         System.out.println("Program has failed due to an IO error.");
         break;
+      case failedIndexOutOfBounds:
+        System.out.println("Program failed due to an attempt to access an array element with in index out of bounds.");
     }
     if (status != halted)
       dump();
@@ -427,6 +429,13 @@ public class Interpreter {
         break;
       case Machine.disposeDisplacement:
         ST = ST - 1; // no action taken at present
+        break;
+      case Machine.icDisplacement: // The idxcheck primitive is added (Austin)
+        // data[ST - 3] = toInt();
+        if (!(data[ST-3] <= data[ST-1] && data[ST-1] <= data[ST-2])) {
+          status = failedIndexOutOfBounds;
+        }
+        ST = ST - 3;
         break;
     }
   }
