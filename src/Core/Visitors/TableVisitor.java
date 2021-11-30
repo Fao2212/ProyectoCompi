@@ -734,9 +734,8 @@ public class TableVisitor implements Visitor {
     /**
      * Adds an identifier to the table.
      */
+    // The addIdentifier no longer checks if the identifier was previously added (Austin)
     private void addIdentifier(String name, String type, int size, int level, int displacement, int value) {
-        boolean exists = false;
-        
         model.addRow(new String[] {name, 
                     type, 
                     String.valueOf(size), 

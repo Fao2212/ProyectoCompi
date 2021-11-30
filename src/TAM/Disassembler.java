@@ -222,8 +222,10 @@ public class Disassembler {
       case Machine.disposeDisplacement:
 	System.out.print ("dispose ");
 	break;
-      case Machine.icDisplacement:        // The idxcheck primitive is added (Austin)
+      // The idxcheck primitive is added (Austin)
+      case Machine.icDisplacement:
       System.out.print ("idxcheck ");
+      break;
     }
   }
 
